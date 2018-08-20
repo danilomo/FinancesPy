@@ -1,0 +1,3 @@
+workspace/
+.ipynb_checkpoints/
+finances/__pycache__
