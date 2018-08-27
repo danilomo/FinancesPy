@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-from finances import main
+from financespy import main
 
 main.main()

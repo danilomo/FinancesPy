@@ -4,13 +4,13 @@ import sys
 import os
 import datetime
 import itertools
-import finances.clutil as clutil
-from finances.clutil import Command
-import finances.sh as sh
+import financespy.clutil as clutil
+from financespy.clutil import Command
+import financespy.sh as sh
 
-from finances.account import Account
-from finances.filesystem_backend import FilesystemBackend
-from finances.transaction import parse_transaction
+from financespy.account import Account
+from financespy.filesystem_backend import FilesystemBackend
+from financespy.transaction import parse_transaction
 
 
 def current_year():

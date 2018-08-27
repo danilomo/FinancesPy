@@ -1,6 +1,6 @@
 import os
-import finances.categories as categories
-import finances.money as money
+import financespy.categories as categories
+import financespy.money as money
 
 class Transaction:
     def __init__(self, value, description = "", categories = [ categories.Uncategorized() ] ):

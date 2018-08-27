@@ -1,5 +1,5 @@
 import os
-from finances.transaction import parse_transaction
+from financespy.transaction import parse_transaction
 
 _months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 

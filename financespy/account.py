@@ -1,5 +1,5 @@
 import datetime
-import finances.time_factory as time_factory
+import financespy.time_factory as time_factory
 
 _current_year = datetime.datetime.now().year
 
