@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: financespy
+Version: 0.0.1
+Summary: A basic finances package
+Home-page: https://github.com/danilomo/FinancesPy
+Author: Danilo Mendonça Oliveira
+Author-email: danilomendoncaoliveira@gmail.com
+License: MIT
+Description: # FinancesPy
+        A budgeting API for Python.
+        
+        FinancesPy is an alternative for Gnucash, Mint, Ynab, etc., for Python enthusiasts. It provides an extensible API with a fluent/DSL-like design for managing your finances. The screenshot below shows a sample usage:
+        
+        ![alt text](https://raw.githubusercontent.com/danilomo/FinancesPy/master/sample.png)
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >= 3
+Description-Content-Type: text/markdown

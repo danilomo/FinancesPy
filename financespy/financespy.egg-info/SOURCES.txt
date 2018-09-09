@@ -1,0 +1,5 @@
+setup.py
+financespy.egg-info/PKG-INFO
+financespy.egg-info/SOURCES.txt
+financespy.egg-info/dependency_links.txt
+financespy.egg-info/top_level.txt
