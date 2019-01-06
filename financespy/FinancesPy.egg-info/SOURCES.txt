@@ -1,5 +1,0 @@
-setup.py
-FinancesPy.egg-info/PKG-INFO
-FinancesPy.egg-info/SOURCES.txt
-FinancesPy.egg-info/dependency_links.txt
-FinancesPy.egg-info/top_level.txt
