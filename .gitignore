@@ -4,3 +4,4 @@ financespy/__pycache__
 financespy.egg-info/
 build/
 dist/
+financespy/dist
