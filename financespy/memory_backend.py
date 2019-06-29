@@ -1,4 +1,6 @@
 import collections
+from financespy.transaction import parse_transaction
+from financespy.transaction import Transaction
 
 class MemoryBackend:
     def __init__(self):
@@ -7,6 +9,11 @@ class MemoryBackend:
         )
 
     def insert_record(self, date, record):
+        if type(record) is str:
+            record = parse_transaction(record)
+        elif type(record) is not Transaction:
+            raise TypeError("Supplied parameter is not a transaction")
+        
         self.records(date).append(record)
 
     def records(self, date):
