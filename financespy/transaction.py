@@ -3,7 +3,7 @@ import financespy.categories as categories
 import financespy.money as money
 
 class Transaction:
-    def __init__(self, value, description = "", categories = [ categories.Uncategorized() ] ):
+    def __init__(self, value, description, categories):
         self.value = money.Money(value)
         self.categories = categories
         self.description = description

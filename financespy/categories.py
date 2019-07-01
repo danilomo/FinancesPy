@@ -2,20 +2,24 @@
 class Category:
     
     def __init__(self, name, parent = None):
-        self._name = name
+        self.name = name
         self._parent = parent
         
     def __str__(self):
-        return self._name
+        return self.name
 
     def matches(self,cat):
-        if self._name == cat:
+        
+        if type(cat) is str and self.name == cat:
+            return True
+
+        if type(cat) is Category and self.name == cat.name:
             return True
 
         if self._parent is None:
             return False
 
-        return self._parent.is_of_category(cat)
+        return self._parent.matches(cat)
     
     __repr__ = __str__
 
@@ -30,7 +34,6 @@ class Categories:
             category,
             self._default
         )
-
     
 def categories_from_list(cats):
     
@@ -53,16 +56,3 @@ def categories_from_list(cats):
     catmap = {}
     aux(catmap, cats, None)
     return Categories(catmap, catmap["uncategorized"])
-                
-    
-default_categories = [
-    "misc",
-    "uncategorized",
-    ("food", [ "groceries", "restaurant", "street_food"])
-]
-
-
-c = categories_from_list(default_categories)
-
-print(c.category("restaurant").is_of_category("food"))
-print(c.category("restaurant").is_of_category("misc"))
