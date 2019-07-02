@@ -1,5 +1,4 @@
 import os
-import financespy.categories as categories
 import financespy.money as money
 
 class Transaction:
@@ -38,7 +37,7 @@ class Transaction:
 
     __str__ = __repr__
 
-def parse_transaction( record, separator = "," ):
+def parse_transaction( record, categories, separator = "," ):
     if( isinstance( record, str ) ):
         values = record.split(separator)
     elif( isinstance( record, list ) ):
@@ -54,6 +53,6 @@ def parse_transaction( record, separator = "," ):
     value = money.Money(values[0])
     description = values[1]
 
-    category_list = list(set([ categories.get_category(s) for s in values[2:] ]))
+    category_list = list(set([ categories.category(s) for s in values[2:] ]))
 
     return Transaction(value, description, category_list)
