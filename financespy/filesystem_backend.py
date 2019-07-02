@@ -12,8 +12,7 @@ class FilesystemBackend:
             f.write(str(record) + "\n")
             f.close()
 
-    def records(self, date):
-        
+    def records(self, date):        
         if not os.path.exists(self.file(date)):
             return
 
