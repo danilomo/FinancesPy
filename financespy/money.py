@@ -41,7 +41,7 @@ class Money:
 
     def __radd__(self, val):
         other = Money(val)
-        return self.__add__(other)
+        return other.__add__(self)
 
     def __sub__(self, val):
         other = val
@@ -51,7 +51,7 @@ class Money:
 
     def __rsub__(self, val):
         other = Money(val)
-        return self.__sub__(other)
+        return other.__sub__(self)
 
     def __mul__(self, val):
         return Money( cents = self._cents * val  )
@@ -62,6 +62,9 @@ class Money:
         return Money( cents = self._cents / val  )
 
     __rtruediv__ = __truediv__
+
+    def __eq__(self, obj):
+        return isinstance(obj,Money) and obj._cents == self._cents
 
     def abs(self):
         return Money( cents = abs(self._cents) )

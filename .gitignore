@@ -5,3 +5,6 @@ financespy.egg-info/
 build/
 dist/
 financespy/dist
+financespy-venv/
+tests/__pycache__/
+.cache/
