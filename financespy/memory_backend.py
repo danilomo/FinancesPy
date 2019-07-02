@@ -11,7 +11,8 @@ class MemoryBackend:
     def insert_record(self, date, record):
         if type(record) is str:
             record = parse_transaction(record)
-        elif type(record) is not Transaction:
+            
+        if type(record) is not Transaction:
             raise TypeError("Supplied parameter is not a transaction")
         
         self.records(date).append(record)
