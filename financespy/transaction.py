@@ -20,12 +20,9 @@ class Transaction:
     def main_category(self):
         return self.categories[0]
 
-    def test_categories(self, category):
-        return [ category.is_of_category(c) for c in self.categories ]
-
-    def is_of_category(self,category):
+    def matches_category(self,category):
         for c in self.categories:
-            if category.is_of_category(c):
+            if c.matches(category):
                 return True
 
         return False
@@ -33,7 +30,9 @@ class Transaction:
     def __getattr__(self, name):
         if name.startswith("is_"):
             cat_name = name[3:]
-            return self.is_of_category(categories.get_category(cat_name))
+            return self.matches_category(cat_name)
+
+        raise AttributeError("Transaction object has no atrribute '%s'" % name)
 
     __str__ = __repr__
 

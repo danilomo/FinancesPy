@@ -1,6 +1,7 @@
 import pytest
 
 from financespy import categories
+from financespy.transaction import parse_transaction
 
 def get_categories():
     default_categories = [
@@ -23,7 +24,7 @@ def test_undefined():
     undefined_cat = cats.category("church_tax")
     assert undefined_cat.name == "uncategorized"
 
-def test_matches():
+def test_category_matches():
     cats = get_categories()
     lidl = cats.category("lidl")
     aldi = cats.category("aldi")
@@ -38,3 +39,22 @@ def test_matches():
     assert aldi.matches(food)
     assert groceries.matches(food)
     assert not tax.matches(cats.category("food"))
+
+def test_transaction_matching():
+    cats = get_categories()
+    t1 = parse_transaction("100, aldi", cats)
+    t2 = parse_transaction("14,street_food", cats)
+    t3 = parse_transaction("500,tax", cats)
+
+    assert t1.is_aldi
+    assert not t1.is_edeka
+    assert t1.is_groceries
+    assert t1.is_food
+
+    assert t2.is_street_food
+    assert not t2.is_groceries
+    assert t2.is_food
+
+    assert t3.is_tax
+    assert not t3.is_food
+    assert not t3.is_groceries
