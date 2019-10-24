@@ -8,3 +8,4 @@ financespy/dist
 financespy-venv/
 tests/__pycache__/
 .cache/
+myenv/
