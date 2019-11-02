@@ -1,5 +1,8 @@
 import datetime
 
+months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
+           'august', 'september', 'october', 'november', 'december']
+
 def _index(a, x):
     i = bisect.bisect_left(a, x)
     if i != len(a) and a[i] == x:

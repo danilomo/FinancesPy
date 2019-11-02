@@ -3,17 +3,11 @@ from datetime import date
 from openpyxl import load_workbook
 from financespy.transaction import parse_transaction
 
-_months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
-           'august', 'september', 'october', 'november', 'december']
-
 class XLSXBackend:
     def __init__(self, folder, categories):
         self.folder = folder
         self._workbooks = {}
         self._categories = categories
-
-    def _init_workbook(self):
-        self
 
     def _get_workbook(self, date):
         if date.month not in self._workbooks:
