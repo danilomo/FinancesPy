@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from financespy.transaction import parse_transaction
 
 _months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
-          'august', 'september', 'october', 'november', 'december']
+           'august', 'september', 'october', 'november', 'december']
 
 class XLSXBackend:
     def __init__(self, folder, categories):
@@ -19,28 +19,30 @@ class XLSXBackend:
         if date.month not in self._workbooks:
             workbook = load_workbook(
                 filename = self.folder + "/"
-                + _months[date.month-1]
+                + str(date.year)
                 + ".xlsx"
             )
-            self._workbooks[date.month] = workbook
+            self._workbooks[date.year] = workbook
             return workbook
 
         return self._workbooks[date.month]
 
-    def _rows_to_records(self,rows):
+    def _rows_to_records(self, rows, date):
         return (
             parse_transaction(
-                str(row[1].value)
+                str(row[2].value)
                 + ","
-                + str(row[0].value),
+                + str(row[1].value),
                 self._categories
             )
-            for row in rows            
+            for row in list(rows)[1:]
+            if date.day == int(row[0].value)
         )
 
     def records(self, date):        
         workbook = self._get_workbook(date)
 
         return self._rows_to_records(
-            workbook.worksheets[date.day-1].rows
+            workbook.worksheets[date.month-1].rows,
+            date
         )
