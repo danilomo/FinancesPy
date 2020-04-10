@@ -1,15 +1,16 @@
 
+
 class Category:
-    
-    def __init__(self, name, parent = None):
+
+    def __init__(self, name, parent=None):
         self.name = name
         self._parent = parent
-        
+
     def __str__(self):
         return self.name
 
-    def matches(self,cat):
-        
+    def matches(self, cat):
+
         if type(cat) is str and self.name == cat:
             return True
 
@@ -20,12 +21,13 @@ class Category:
             return False
 
         return self._parent.matches(cat)
-    
+
     __repr__ = __str__
+
 
 class Categories:
 
-    def __init__(self,categories, default_category):
+    def __init__(self, categories, default_category):
         self._categories = categories
         self._default = default_category
 
@@ -34,9 +36,10 @@ class Categories:
             category,
             self._default
         )
-    
+
+
 def categories_from_list(cats):
-    
+
     def aux(catmap, cats, parent):
         for cat in cats:
             if type(cat) is str:
