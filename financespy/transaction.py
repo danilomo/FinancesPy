@@ -1,5 +1,5 @@
-import os
 import financespy.money as money
+
 
 class Transaction:
     def __init__(self, value, description, categories):
@@ -9,10 +9,10 @@ class Transaction:
 
     def as_expense(self):
         new_value = -1 * self.value.abs()
-        return Transaction( new_value, self.description, self.categories )
+        return Transaction(new_value, self.description, self.categories)
 
     def as_income(self):
-        return Transaction( self.value.abs(), self.description, self.categories )
+        return Transaction(self.value.abs(), self.description, self.categories)
 
     def __repr__(self):
         return ("%s, %s" % (str(self.value), self.description))
@@ -20,7 +20,7 @@ class Transaction:
     def main_category(self):
         return self.categories[0]
 
-    def matches_category(self,category):
+    def matches_category(self, category):
         for c in self.categories:
             if c.matches(category):
                 return True
@@ -36,15 +36,16 @@ class Transaction:
 
     __str__ = __repr__
 
-def parse_transaction( record, categories, separator = "," ):
-    if( isinstance( record, str ) ):
+
+def parse_transaction(record, categories, separator=","):
+    if isinstance(record, str):
         values = record.split(separator)
-    elif( isinstance( record, list ) ):
+    elif isinstance(record, list):
         values = record
     else:
-        raise Exception( str(type(record)) + " not allowed as parameter." )
+        raise Exception(str(type(record)) + " not allowed as parameter.")
 
-    values = [ s.strip() for s in values if s.strip() ]
+    values = [s.strip() for s in values if s.strip()]
 
     if len(values) == 2:
         values.append(values[1])
@@ -52,6 +53,6 @@ def parse_transaction( record, categories, separator = "," ):
     value = money.Money(values[0])
     description = values[1]
 
-    category_list = list(set([ categories.category(s) for s in values[2:] ]))
+    category_list = list(set([categories.category(s) for s in values[2:]]))
 
     return Transaction(value, description, category_list)
