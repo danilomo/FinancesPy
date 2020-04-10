@@ -4,11 +4,13 @@ class Currency:
         self.acronym = acronym
         self.name = name
 
+
 def _currency_list_to_dict(currencies):
     return {
         currency.acronym: currency
         for currency in currencies
     }
+
 
 _default_currencies = _currency_list_to_dict([
     Currency('AUD', 'Australia Dollar'),
@@ -171,14 +173,15 @@ _default_currencies = _currency_list_to_dict([
     Currency('ZWD', 'Zimbabwe Dollar')
 ])
 
+
 class Currencies:
-    def __init__(self, currencies = _default_currencies):
+    def __init__(self, currencies=_default_currencies):
         if type(currencies) is list:
             self._currencies = _currency_list_to_dict(currencies)
         else:
             self._currencies = currencies
 
-    def currency(self,name):
+    def currency(self, name):
         return self._currencies[name]
 
     def __getattr__(self, name):
@@ -189,7 +192,8 @@ class Currencies:
 
 
 class Money:
-    def __init__(self, value = None, cents = None, currency = _default_currencies['USD']):
+    def __init__(self, value=None, cents=None,
+                 currency=_default_currencies['USD']):
 
         self.currency = currency
 
@@ -228,8 +232,8 @@ class Money:
     def __add__(self, val):
         other = val
         if not isinstance(val, Money):
-            other = Money(value = val, currency = self.currency)
-        return Money( cents = self._cents + other._cents )
+            other = Money(value=val, currency=self.currency)
+        return Money(cents=self._cents + other._cents)
 
     def __radd__(self, val):
         other = Money(val)
@@ -238,8 +242,8 @@ class Money:
     def __sub__(self, val):
         other = val
         if not isinstance(val, Money):
-            other = Money(value = val, currency = self.currency)
-        return Money( cents = self._cents - other._cents )
+            other = Money(value=val, currency=self.currency)
+        return Money(cents=self._cents - other._cents)
 
     def __rsub__(self, val):
         other = Money(val)
