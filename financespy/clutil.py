@@ -2,8 +2,10 @@ import sys
 
 _functions = {}
 
+
 def _is_parameter(s):
     return s.strip().startswith("-")
+
 
 def _list_to_dict(l):
 
@@ -36,17 +38,18 @@ def _list_to_dict(l):
 
     return d
 
-def Command( func ):
+
+def Command(func):
     _functions[func.__name__] = func
     return func
 
+
 @Command
-def _list_commands( args ):
-    commands = list( _functions.keys() )
+def _list_commands(args):
+    commands = list(_functions.keys())
     commands.remove("_list_commands")
     list.sort(commands)
-    print( " ".join(commands) )
-
+    print(" ".join(commands))
 
 
 def execute():
@@ -56,7 +59,7 @@ def execute():
     if com is None:
         print("Command not found")
     else:
-        if  com in _functions:
+        if com in _functions:
             args = _list_to_dict(it)
             func = _functions[com]
             func(** args)
