@@ -15,7 +15,8 @@ class Transaction:
         return Transaction(self.value.abs(), self.description, self.categories)
 
     def __repr__(self):
-        return ("%s, %s" % (str(self.value), self.description))
+        return ("%s, %s, %s" % (str(self.value),
+                                self.description, str(self.categories)))
 
     def main_category(self):
         return self.categories[0]

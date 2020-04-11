@@ -1,13 +1,14 @@
 import os
 from financespy.transaction import parse_transaction
-
+from financespy.backend import Backend
 
 _months = ["jan", "feb", "mar", "apr", "may", "jun",
            "jul", "aug", "sep", "oct", "nov", "dec"]
 
 
-class FilesystemBackend:
+class FilesystemBackend(Backend):
     def __init__(self, folder):
+        super().__init__()
         self.folder = folder
 
     def insert_record(self, date, record):

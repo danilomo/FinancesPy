@@ -226,6 +226,9 @@ class Money:
     def __float__(self):
         return round(self._cents / 100.0, 2)
 
+    def __int__(self):
+        return int(self._cents)
+
     def __repr__(self):
         return self.__str__()
 
