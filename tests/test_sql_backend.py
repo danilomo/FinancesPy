@@ -3,21 +3,14 @@ from datetime import datetime
 from financespy.transaction import parse_transaction
 from financespy.sql_backend import SQLBackend
 from financespy.sql_backend import db_object
+from financespy.memory_backend import MemoryBackend
 from tests.test_utils import get_categories, dt
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///:memory:', echo=True)
-Base = declarative_base()
-session_factory = sessionmaker(bind=engine)
-session = session_factory()
-
-db = db_object(Base, session)
-
-records_ = """2019-09-04;770.0, rent
-2019-09-04;20.0, withdrawal
+records_ = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
 2019-09-06;49.28, aldi
 2019-09-08;17.05, müller
@@ -41,15 +34,41 @@ def records(cats):
         for date, trans in recs
     ]
 
+def get_backend(categories):
+    engine = create_engine('sqlite:///:memory:', echo=False)
+    Base = declarative_base()
+    session_factory = sessionmaker(bind=engine)
+    session = session_factory()
 
-def test_test():
-    cats = get_categories()
-    backend = SQLBackend(db, 1, cats)
+    db = db_object(Base, session)
+
+    backend = SQLBackend(db, 1, categories)
     Base.metadata.create_all(engine)
+
+    return backend
+
+def total_iterator(iterator):
+    weeks = [
+        sum(t.value for t in element.records()) for element in iterator
+    ]
+
+def test_month_iterator():
+    cats = get_categories()
+    backend = get_backend(cats)
+    memory_backend = MemoryBackend(cats)
 
     for date, rec in records(cats):
         backend.insert_record(date, rec)
+        memory_backend.insert_record(date, rec)
 
-    weeks = backend.month("sep", 2019).weeks()
-    result = [list(str(r) for r in week.records()) for week in weeks]
-    print(result)
+    weeks1 = backend.month("sep", 2019).weeks()
+    weeks2 = memory_backend.month("sep", 2019).weeks()
+
+    assert total_iterator(weeks1) == total_iterator(weeks2)
+
+    month1 = backend.month("sep", 2019).days()
+    month2 = memory_backend.month("sep", 2019).days()
+
+    assert total_iterator(month1) == total_iterator(month2)
+
+
