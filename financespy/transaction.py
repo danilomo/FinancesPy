@@ -37,6 +37,13 @@ class Transaction:
 
     __str__ = __repr__
 
+    def to_dict(self):
+        return {
+            "value": int(self.value),
+            "description": self.description,
+            "categories": [cat.name for cat in self.categories]
+        }
+
 
 def parse_transaction(record, categories, separator=","):
     if isinstance(record, str):
