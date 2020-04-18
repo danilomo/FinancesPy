@@ -38,11 +38,20 @@ class Transaction:
     __str__ = __repr__
 
     def to_dict(self):
-        return {
+        result = {
             "value": int(self.value),
             "description": self.description,
             "categories": [cat.name for cat in self.categories]
         }
+
+        if self.date is not None:
+            result["date"] = {
+                "day": self.date.day,
+                "month": self.date.month,
+                "year": self.date.year
+            }
+
+        return result
 
 
 def parse_transaction(record, categories, separator=","):
