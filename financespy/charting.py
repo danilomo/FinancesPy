@@ -58,6 +58,10 @@ class PieChart:
     def add_transaction(self, trans):
         self._head.add(trans)
 
+    def add_transactions(self, it):
+        for trans in it:
+            self.add_transaction(trans)
+
     def _make_linked_list(self):
         sections = self._sections
         sect = sections[0]

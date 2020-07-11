@@ -31,7 +31,7 @@ class XLSXBackend:
                 self._categories
             )
             for row in list(rows)[1:]
-            if date.day == int(row[0].value)
+            if row[0].value and date.day == int(row[0].value)
         )
 
     def records(self, date):

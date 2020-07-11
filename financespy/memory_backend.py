@@ -6,7 +6,7 @@ from financespy.transaction import Transaction
 class MemoryBackend:
     def __init__(self, categories):
         self._months = collections.defaultdict(
-            lambda: [[] for i in range(0, 31)]
+            lambda: [[] for i in range(0, 32)]
         )
         self._categories = categories
 
