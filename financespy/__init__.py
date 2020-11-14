@@ -9,5 +9,7 @@ from financespy.charting import PieSection
 from financespy.charting import PieChart
 from financespy.transaction import Transaction
 from financespy.time_factory import parse_month
+from financespy.charting import section_factory
+
 
 name = "FinancesPy"

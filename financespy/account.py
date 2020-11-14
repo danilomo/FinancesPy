@@ -15,3 +15,8 @@ class Account:
 
     def insert_record(self, date, transaction):
         self._backend.insert_record(date, transaction)
+
+    def copy_year(self, account, year):
+        for month in range(1, 13):
+            for trans in account.month(month, year=year).records():
+                self.insert_record(trans.date, trans)
