@@ -21,6 +21,9 @@ class Transaction:
     def main_category(self):
         return self.categories[0]
 
+    def add_category(self, category):
+        self.categories.append(category)
+
     def matches_category(self, category):
         for c in self.categories:
             if c.matches(category):

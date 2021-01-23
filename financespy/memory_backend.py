@@ -10,13 +10,13 @@ class MemoryBackend(Backend):
         self._months = collections.defaultdict(
             lambda: [[] for i in range(0, 32)]
         )
-        self._categories = categories
+        self.categories = categories
 
     def insert_record(self, date, record):
         if type(record) is str:
             record = parse_transaction(
                 record,
-                self._categories
+                self.categories
             )
 
         if type(record) is not Transaction:
@@ -26,3 +26,6 @@ class MemoryBackend(Backend):
 
     def records(self, date):
         return self._months[(date.year, date.month)][date.day]
+
+    def category_from(self, name):
+        return self.categories.category(name)
