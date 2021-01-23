@@ -2,7 +2,7 @@ import financespy.time_factory as time_factory
 
 
 class Backend:
-    
+
     def __init__(self):
         self._timef = time_factory.TimeFactory(self)
 

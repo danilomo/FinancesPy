@@ -1,9 +1,10 @@
 import financespy.money as money
+from financespy.money import Money
 
 
 class Transaction:
     def __init__(self, value, description, categories):
-        self.value = money.Money(value)
+        self.value = money.Money(value) if type(value) != Money else value
         self.categories = categories
         self.description = description
 

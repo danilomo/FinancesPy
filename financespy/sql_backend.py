@@ -1,10 +1,12 @@
 from datetime import date
 import financespy.transaction
 from financespy.backend import CompositeBackend
+from financespy.money import Money
 from financespy.memory_backend import MemoryBackend
-from financespy.time_factory import Month
+from financespy.time_factory import parse_month
 from sqlalchemy import and_
 
+# TODO: use auto increment and remove this global variable
 ID = 1
 
 
@@ -75,7 +77,7 @@ class SQLBackend:
         return (self._transaction(t) for t in result)
 
     def month(self, month, year):
-        m = Month._getMonth(month)
+        m = parse_month(month)
         firstday = date(day=1, month=m, year=year)
         lastday = date(day=30, month=m, year=year)
         results = self._query().filter(
@@ -98,7 +100,7 @@ class SQLBackend:
                           in t.categories.split(","))
 
         return financespy.transaction.Transaction(
-            value=t.value,
+            value=Money(cents=t.value),
             categories=categories,
             description=t.description
         )

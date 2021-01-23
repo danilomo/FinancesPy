@@ -4,7 +4,7 @@ from financespy.transaction import parse_transaction
 from financespy.sql_backend import SQLBackend
 from financespy.sql_backend import db_object
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories, dt
+from tests.test_utils import get_categories
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -34,6 +34,7 @@ def records(cats):
         for date, trans in recs
     ]
 
+
 def get_backend(categories):
     engine = create_engine('sqlite:///:memory:', echo=False)
     Base = declarative_base()
@@ -47,10 +48,14 @@ def get_backend(categories):
 
     return backend
 
+
 def total_iterator(iterator):
     weeks = [
         sum(t.value for t in element.records()) for element in iterator
     ]
+
+    return weeks
+
 
 def test_month_iterator():
     cats = get_categories()
@@ -70,5 +75,3 @@ def test_month_iterator():
     month2 = memory_backend.month("sep", 2019).days()
 
     assert total_iterator(month1) == total_iterator(month2)
-
-
