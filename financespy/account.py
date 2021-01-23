@@ -18,7 +18,16 @@ class Account:
     def insert_record(self, date, transaction):
         self._backend.insert_record(date, transaction)
 
-    def copy_year(self, account, year):
+    def copy_year(self, account, year, tags=[], filters=[]):
         for month in range(1, 13):
             for trans in account.month(month, year=year).records():
+
+                for f in filters:
+                    if trans.matches_category(f):
+                        continue
+
+                for t in tags:
+                    cat = self._backend.category_from(t)
+                    trans.add_category(cat)
+
                 self.insert_record(trans.date, trans)
