@@ -36,7 +36,7 @@ def records(cats):
 
 
 def get_backend(categories):
-    engine = create_engine('sqlite:///:memory:', echo=False)
+    engine = create_engine('sqlite:///:memory:', echo=True)
     Base = declarative_base()
     session_factory = sessionmaker(bind=engine)
     session = session_factory()

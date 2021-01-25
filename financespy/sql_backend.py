@@ -6,9 +6,6 @@ from financespy.memory_backend import MemoryBackend
 from financespy.time_factory import parse_month
 from sqlalchemy import and_
 
-# TODO: use auto increment and remove this global variable
-ID = 1
-
 
 def db_object(base, session):
     import sqlalchemy
@@ -30,14 +27,16 @@ def Transaction(db):
     class Transaction_(db.Model):
         __tablename__ = 'transactions'
 
-        id = db.Column(db.BigInteger, primary_key=True)
+        id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
         value = db.Column(db.BigInteger)
         description = db.Column(db.String)
         categories = db.Column(db.String)
-        account_id = db.Column(db.BigInteger)
+        account_id = db.Column(db.Integer)
         date = db.Column(db.Date)
 
         def __repr__(self):
+
+            # TODO: better string representation
             return str((self.id, self.value, self.description, self.date))
 
         __str__ = __repr__
@@ -54,20 +53,16 @@ class SQLBackend:
         self.categories = categories
 
     def insert_record(self, date, trans):
-        global ID
         categories = (",".join(str(cat) for cat in trans.categories)
                       if trans.categories else "")
 
         self.db.session.add(self.Transaction(
-            id=ID,
             value=int(trans.value),
             description=trans.description,
             categories=categories,
             account_id=self.account_id,
             date=date
         ))
-
-        ID += 1
 
         self.db.session.commit()
 
