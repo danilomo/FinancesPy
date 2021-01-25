@@ -1,10 +1,12 @@
 from openpyxl import load_workbook
 from financespy.transaction import parse_transaction
 from financespy.transaction import Transaction
+from financespy.backend import Backend
 
 
-class XLSXBackend:
+class XLSXBackend(Backend):
     def __init__(self, folder, categories):
+        super().__init__()
         self.folder = folder
         self._workbooks = {}
         self._categories = categories

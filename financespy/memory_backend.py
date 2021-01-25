@@ -1,10 +1,12 @@
 import collections
 from financespy.transaction import parse_transaction
 from financespy.transaction import Transaction
+from financespy.backend import Backend
 
 
-class MemoryBackend:
+class MemoryBackend(Backend):
     def __init__(self, categories):
+        super().__init__()
         self._months = collections.defaultdict(
             lambda: [[] for i in range(0, 32)]
         )

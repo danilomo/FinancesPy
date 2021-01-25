@@ -1,9 +1,10 @@
 import financespy.money as money
+from financespy.money import Money
 
 
 class Transaction:
     def __init__(self, value, description, categories):
-        self.value = money.Money(value)
+        self.value = money.Money(value) if type(value) != Money else value
         self.categories = categories
         self.description = description
 
@@ -15,7 +16,8 @@ class Transaction:
         return Transaction(self.value.abs(), self.description, self.categories)
 
     def __repr__(self):
-        return ("%s, %s" % (str(self.value), self.description))
+        return ("%s, %s, %s" % (str(self.value),
+                                self.description, str(self.categories)))
 
     def main_category(self):
         return self.categories[0]
@@ -38,6 +40,22 @@ class Transaction:
         raise AttributeError("Transaction object has no atrribute '%s'" % name)
 
     __str__ = __repr__
+
+    def to_dict(self):
+        result = {
+            "value": int(self.value),
+            "description": self.description,
+            "categories": [cat.name for cat in self.categories]
+        }
+
+        if self.date is not None:
+            result["date"] = {
+                "day": self.date.day,
+                "month": self.date.month,
+                "year": self.date.year
+            }
+
+        return result
 
 
 def parse_transaction(record, categories, separator=","):

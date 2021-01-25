@@ -3,11 +3,21 @@ import datetime
 months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
           'august', 'september', 'october', 'november', 'december']
 
-# def _index(a, x):
-#    i = bisect.bisect_left(a, x)
-#    if i != len(a) and a[i] == x:
-#        return True
-#    return False
+_months_short = ["jan", "feb", "mar", "apr", "may", "jun",
+                 "jul", "aug", "sep", "oct", "nov", "dec"]
+
+_months_indexes = dict(zip(_months_short, range(1, 13)))
+
+
+def _getMonth(m):
+    if isinstance(m, str) and m in _months_indexes:
+        m = m.lower()
+        return _months_indexes[m]
+
+    return int(m)
+
+
+parse_month = _getMonth
 
 
 class TimeFactory:
@@ -55,16 +65,6 @@ class Week:
 
 
 class Month:
-    _months = ["jan", "feb", "mar", "apr", "may", "jun",
-               "jul", "aug", "sep", "oct", "nov", "dec"]
-    _months_indexes = dict(zip(_months, range(1, 13)))
-
-    def _getMonth(m):
-        if isinstance(m, str) and m in Month._months_indexes:
-            m = m.lower()
-            return Month._months_indexes[m]
-
-        return int(m)
 
     class _MonthIterator:
         def __init__(self, m):
@@ -86,7 +86,7 @@ class Month:
             return Day(d, self._month.backend)
 
     def __init__(self, month, year, backend):
-        self.month = Month._getMonth(month)
+        self.month = _getMonth(month)
         self.year = year
         self.backend = backend
 
