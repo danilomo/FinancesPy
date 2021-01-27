@@ -9,3 +9,4 @@ financespy-venv/
 tests/__pycache__/
 .cache/
 myenv/
+.idea/
