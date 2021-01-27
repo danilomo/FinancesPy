@@ -101,9 +101,9 @@ The subfolders and files should be written according to the following convention
   ("2019", "2020", "2021", etc.)
 * Inside the folder for each year, there should be a folder for each month, and they are named with the three initial letters
 of the english name of the month: jan, feb, mar, ...
-* For each day which has recordings, you append transactions in a csv file named: <day number>.csv (starts with 1)
+* For each day which has recordings, you append transactions in a csv file named: \<day number\>.csv (starts with 1)
 * Each line in the CSV has the following format (elements inside \[\] are optional):
-    * <value>, <main_category>, \[description\], \[additional categories separated by a comma\]
+    * \<value\>, \<main_category\>, \[description\], \[additional categories separated by a comma\]
 
 ### XLSX files
 
