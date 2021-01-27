@@ -19,10 +19,15 @@ class Account:
     def copy_year(self, account, year, tags=[], filters=[]):
         for month in range(1, 13):
             for trans in account.month(month, year=year).records():
+                matches_some_filter = False
 
                 for f in filters:
                     if trans.matches_category(f):
-                        continue
+                        matches_some_filter = True
+                        break
+
+                if matches_some_filter:
+                    continue
 
                 for t in tags:
                     cat = self._backend.category_from(t)
