@@ -38,8 +38,8 @@ If you mark a transaction with the category "penny", it is also belongs to the "
 Having this hierarchical labeling system allows precise queries being made over the records:
 
 * How much did I spend in penny and aldi: ```penny and aldi```
-* How much did I spend eating out: ```food and (not groceries)```
-* How much did I spend eating out with my girlfriend: ```food and (not groceries) and gilrfriend```. In this example you
+* How much did I spend eating outside: ```food and (not groceries)```
+* How much did I spend eating outside with my girlfriend: ```food and (not groceries) and gilrfriend```. In this example you
 combine having multiple labels with hierarchical labeling.
   
 Looks overkill, I know, but I found this concept useful for my own financial tracking. It's nice being able to query my visualize
