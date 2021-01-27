@@ -33,7 +33,7 @@ appears at virtually any other software of the genre. FinancesPy has two distinc
             * edeka
             * penny
 
-In the example above, you have a super-category "food" for every euro/dollar you spend to the purpose of feeding yourself.
+In the example above, you have a super-category "food" for every euro/dollar/rupee you spend to the purpose of feeding yourself.
 If you mark a transaction with the category "penny", it is also belongs to the "groceries" and "food" categories.
 Having this hierarchical labeling system allows precise queries being made over the records:
 
