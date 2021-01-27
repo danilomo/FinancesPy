@@ -61,7 +61,7 @@ march_records = ...
 junk_food_march = [ trans for trans in march_records if trans.matches_category("junk food") ]
 ```
 
-The boolean queries mentioned above look more pretty if you use this convention.
+The boolean queries mentioned above look prettier if you use this convention.
 
 ## Backends
 
