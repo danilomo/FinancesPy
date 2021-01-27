@@ -42,7 +42,7 @@ Having this hierarchical labeling system allows precise queries being made over 
 * How much did I spend eating outside with my girlfriend: ```food and (not groceries) and gilrfriend```. In this example you
 combine having multiple labels with hierarchical labeling.
   
-Looks overkill, I know, but I found this concept useful for my own financial tracking. It's nice being able to query my visualize
+Looks overkill, I know, but I found this concept useful for my own financial tracking. It's nice being able to visualize
 my spending in multiple ways. You also don't need to abuse this system if you don't need/want to.
 
 Categories are best represented in the same way identifiers are represented in a programming language: no spaces in between.
