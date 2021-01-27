@@ -124,7 +124,7 @@ You can use any font, cell colors, etc. FinancesPy will just enforce the followi
     * Fourth column is a description (optional)
     * Fifth column are additional categories, separated by comma (optional)
     
-An example of such spreadsheet can be found here, and a blank template is available here. 
+An example of such spreadsheet can be found [here](https://raw.githubusercontent.com/danilomo/FinancesPy/master/tests/resources/finances/2019.xlsx), and a blank template is available [here](https://raw.githubusercontent.com/danilomo/FinancesPy/master/.github/template.xlsx). 
 
 ### SQL backend
 
