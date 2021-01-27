@@ -1,6 +1,6 @@
 # FinancesPy
 
-FinancesPy literate API for personal finances inspired by Gnucash, Mint, Ynab, and similar software. It provides:
+FinancesPy is an API for personal finances inspired by Gnucash, Mint, Ynab, and similar software. It provides:
 
 * A literate API for personal finances concepts that can be used in any Python application.
 * Support for multiple storage (called backends in the project): comma-separated-values files, XLSX files, relational, and relational databases.
