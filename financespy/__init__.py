@@ -10,6 +10,8 @@ from financespy.charting import PieChart
 from financespy.transaction import Transaction
 from financespy.time_factory import parse_month
 from financespy.charting import section_factory
+from financespy.gnucash_backend import GnucashBackend
+from financespy.gnucash_backend import categories_from
 
 
 name = "FinancesPy"
