@@ -48,6 +48,10 @@ my spending in multiple ways. You also don't need to abuse this system if you do
 Categories are best represented in the same way identifiers are represented in a programming language: no spaces in between.
 You can follow snake or camel-case conventions to express multi-word concepts. If follow this convention, then you can use the magic
 method "is_<something>" in the class transaction.
+  
+Gnucash users can realize this is partially an imitation of the hierarchical account settings from their software. Yes, that is true, 
+FinancesPy also benefits from hierarchical classification of transactions. In FinancesPy, however, they are not "accounts", but just
+"labels", and a transaction can have multiple labels. For the mapping between Gnucash and FinancesPy concepts, refer to the section (TODO)...
 
 ```
 march_records = ...
