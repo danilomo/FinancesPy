@@ -16,9 +16,7 @@ def _getMonth(m):
 
     return int(m)
 
-
 parse_month = _getMonth
-
 
 class TimeFactory:
     def __init__(self, backend):

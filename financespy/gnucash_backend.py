@@ -4,6 +4,7 @@ from financespy.categories  import Category
 from financespy.categories  import Categories
 from financespy.transaction import Transaction
 from datetime import datetime
+from financespy.memory_backend import month_iterator_from_query
 
 from gnucash import \
     QOF_QUERY_AND, \
@@ -62,12 +63,14 @@ def split_to_transaction(split, categories):
     value = split.GetValue().to_double() # TODO - create Money implementation based on gnucash's GncNumeric
     category = categories.category(split.GetAccount().name)
     description = transaction.GetDescription()
-    print(transaction.GetDate())
-    return Transaction(
+
+    result = Transaction(
         value=value,
         categories=[category],
         description=description
     )
+    result.date = transaction.GetDate().date()
+    return result
     
 
 def _insert_transaction(session, record, rec_date, account_to, account_from):
@@ -75,13 +78,13 @@ def _insert_transaction(session, record, rec_date, account_to, account_from):
 
     #set currency
     comm_table = book.get_table()
-    currency = comm_table.lookup("CURRENCY", "EUR")
+    currency = comm_table.lookup("CURRENCY", "EUR") # TODO - remove hardcoded currency
     
     transaction = gnucash.Transaction(book)
     transaction.BeginEdit()
 
     split_to = Split(book)
-    value = GncNumeric(4, 1) # TODO - remove hardcoded value
+    value = GncNumeric(record.value.cents(), 100) # TODO - create money representation based on fractions
     split_to.SetValue(value)
     split_to.SetAccount(account_to)
     split_to.SetParent(transaction)
@@ -110,7 +113,7 @@ class GnucashBackend:
         self._session = session
         self._root_account = self._session.book.get_root_account()
         self._account = account
-        self._categories = categories
+        self.categories = categories
 
 
     def insert_record(self, date, record):
@@ -125,6 +128,10 @@ class GnucashBackend:
         dt = datetime(day=day, month=month, year=year)
 
         return self._query(date=dt)
+
+    def month(self, month, year):
+        query = lambda firstday, lastday: self._query(date_from=firstday, date_to=lastday)
+        return month_iterator_from_query(month, year, self, query)
 
     def _query(self, date = None, date_from = None, date_to = None, filters = []):
         book = self._session.book
@@ -155,4 +162,4 @@ class GnucashBackend:
                     QOF_DATE_MATCH_NORMAL, date_to)
                 query.add_term(PARAM_LIST, pred_data, QOF_QUERY_AND)
 
-        return (split_to_transaction(Split(instance=split), self._categories) for split in query.run())
+        return (split_to_transaction(Split(instance=split), self.categories) for split in query.run())

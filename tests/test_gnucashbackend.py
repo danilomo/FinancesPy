@@ -23,7 +23,7 @@ def records(cats):
     ]
 
 
-def AAAtest_insertrecord():
+def aaatest_insertrecord():
     session = Session('/home/danilo/Documents/my_account.gnucash')
     checking_account = session.book.get_root_account()["Assets"]["Current Assets"]["Checking Account"]
     expenses_account = session.book.get_root_account()["Expenses"]
@@ -43,7 +43,7 @@ def test_listrecords():
     categories = categories_from(expenses_account)
     backend = GnucashBackend(session, checking_account, categories)
 
-    for t in backend.day(day=4,month=9,year=2019):
-        print(t)
+    for t in backend.month(month=9,year=2019).records():
+        print((t, t.date))
 
     session.end()    

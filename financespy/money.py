@@ -268,5 +268,7 @@ class Money:
     def abs(self):
         return Money(cents=abs(self._cents))
 
+    def cents(self):
+        return self._cents
 
 ZERO = Money(0)
