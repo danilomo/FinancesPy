@@ -3,7 +3,7 @@ import financespy.transaction
 from financespy.backend import CompositeBackend
 from financespy.money import Money
 from financespy.memory_backend import MemoryBackend
-from financespy.time_factory import parse_month
+from financespy.memory_backend import month_iterator_from_query
 from sqlalchemy import and_
 
 
@@ -52,6 +52,7 @@ class SQLBackend:
         self.account_id = account_id
         self.categories = categories
 
+
     def insert_record(self, date, trans):
         categories = (",".join(str(cat) for cat in trans.categories)
                       if trans.categories else "")
@@ -66,39 +67,40 @@ class SQLBackend:
 
         self.db.session.commit()
 
+
     def day(self, day, month, year):
         dt = date(day=day, month=month, year=year)
         result = self._query().filter(self.Transaction.date == dt)
         return (self._transaction(t) for t in result)
 
+
     def month(self, month, year):
-        m = parse_month(month)
-        firstday = date(day=1, month=m, year=year)
-        lastday = date(day=30, month=m, year=year)
-        results = self._query().filter(
-            and_(self.Transaction.date >= firstday,
-                 self.Transaction.date <= lastday))
+        def query(firstday, lastday):
+            iterator = self._query().filter(
+                and_(self.Transaction.date >= firstday.date(),
+                     self.Transaction.date <= lastday.date()))
 
-        mb = MemoryBackend(self.categories)
+            return (self._transaction(t) for t in iterator)
+            
+        return month_iterator_from_query(month, year, self, query)
 
-        for t in results:
-            mb.insert_record(t.date, self._transaction(t))
-
-        cb = CompositeBackend(mb, self)
-        return cb.month(month, year)
 
     def _query(self):
         return self.session.query(self.Transaction)
+
 
     def _transaction(self, t):
         categories = list(self.categories.category(cat) for cat
                           in t.categories.split(","))
 
-        return financespy.transaction.Transaction(
+        result = financespy.transaction.Transaction(
             value=Money(cents=t.value),
             categories=categories,
             description=t.description
         )
+        result.date = t.date
+        return result
+
 
     def all(self):
         return self._query().all()
