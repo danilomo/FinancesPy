@@ -269,6 +269,7 @@ class Money:
         return Money(cents=abs(self._cents))
 
     def cents(self):
-        return self._cents
+        return int(self._cents)
+
 
 ZERO = Money(0)
