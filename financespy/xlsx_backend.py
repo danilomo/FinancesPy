@@ -5,11 +5,10 @@ from financespy.backend import Backend
 
 
 class XLSXBackend(Backend):
-    def __init__(self, folder, categories):
+    def __init__(self, folder):
         super().__init__()
         self.folder = folder
         self._workbooks = {}
-        self._categories = categories
 
     def _filename(self, date):
         return self.folder + "/" + str(date.year) + ".xlsx"
@@ -30,7 +29,7 @@ class XLSXBackend(Backend):
                 str(row[2].value)
                 + ","
                 + str(row[1].value),
-                self._categories
+                self.categories
             )
             for row in list(rows)[1:]
             if row[0].value and date.day == int(row[0].value)

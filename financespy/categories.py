@@ -38,7 +38,7 @@ class Categories:
         )
 
 
-def categories_from_list(cats):
+def _categories_from_list(cats):
 
     def aux(catmap, cats, parent):
         for cat in cats:
@@ -55,6 +55,29 @@ def categories_from_list(cats):
                 )
                 catmap[cat[0]] = category
                 aux(catmap, cat[1], category)
+
+    catmap = {}
+    aux(catmap, cats, None)
+    return Categories(catmap, catmap["uncategorized"])
+
+def categories_from_list(cats):
+    
+    def aux(catmap, cats, parent):
+        for cat in cats:
+            if type(cat) is str:
+                category = Category(
+                    cat,
+                    parent
+                )
+                catmap[cat] = category
+            elif type(cat) is dict:
+                cat_name = cat.keys().__iter__().__next__()                
+                category = Category(
+                    cat_name,
+                    parent
+                )
+                catmap[cat_name] = category
+                aux(catmap, cat[cat_name], category)
 
     catmap = {}
     aux(catmap, cats, None)
