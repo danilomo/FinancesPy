@@ -37,30 +37,10 @@ class Categories:
             self._default
         )
 
-
-def _categories_from_list(cats):
-
-    def aux(catmap, cats, parent):
-        for cat in cats:
-            if type(cat) is str:
-                category = Category(
-                    cat,
-                    parent
-                )
-                catmap[cat] = category
-            elif type(cat) is tuple:
-                category = Category(
-                    cat[0],
-                    parent
-                )
-                catmap[cat[0]] = category
-                aux(catmap, cat[1], category)
-
-    catmap = {}
-    aux(catmap, cats, None)
-    return Categories(catmap, catmap["uncategorized"])
-
 def categories_from_list(cats):
+
+    if not cats:
+        return None
     
     def aux(catmap, cats, parent):
         for cat in cats:

@@ -28,6 +28,12 @@ class Backend:
                 if _satisfy_filters(record, filters):
                     self.insert_record(record.date, record)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
 
 class CompositeBackend:
 

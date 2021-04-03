@@ -1,0 +1,8 @@
+{
+	"type": "gnucash",
+	"currency": "EUR",
+	"properties": {
+		"account_backend": "Assets/Current Assets/Checking Account",
+		"account_categories": "Expenses"
+	}
+}
