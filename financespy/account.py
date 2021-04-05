@@ -32,7 +32,7 @@ def open_account(account_path = None):
     try:
         dot_index = account_path.rindex(".")
         extension = account_path[-(len(account_path)-dot_index):]
-    except:
+    except ValueError as err:
         pass
 
     if extension == ".gnucash":
