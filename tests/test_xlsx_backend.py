@@ -1,3 +1,4 @@
+from financespy.account import open_account
 from financespy.transaction import parse_transaction
 from financespy.xlsx_backend import XLSXBackend
 from tests.test_utils import get_categories
@@ -7,7 +8,12 @@ import os
 
 def backend(path="./tests/resources/finances"):
     cats = get_categories()
-    return XLSXBackend(path, cats)
+    backend = XLSXBackend(path)
+    
+    backend.categories = cats
+    backend.currency = "eur"
+
+    return backend
 
 
 def list_records(be, date_):
@@ -15,6 +21,19 @@ def list_records(be, date_):
         (str(trans.main_category()), float(trans.value))
         for trans in be.records(date_)
     ]
+
+def test_open_xlsx_account():
+    account = open_account("./tests/resources/finances")
+
+    records = list_records(account, dt(day=3, month=1))
+    expected = [
+        ("street_food", 34),
+        ("sports", 467),
+        ("furniture", 43)
+    ]
+
+    assert records == expected
+    assert not list(account.records(dt(day=1, month=12)))
 
 
 def test_list_records():

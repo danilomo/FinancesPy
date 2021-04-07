@@ -44,10 +44,22 @@ QOF_PARAM_GUID = 'guid'
 gnucash.gnucash_core.Account.__getitem__ = \
     lambda self, a: self.lookup_by_name(a)
 
+def account_for(session, account_path):
+    '''Lookup a gnucash account object from a '/' separated string.
+       Example: account_for(session, "Assets/Current Assets/Checking Accounts")'''
+    
+    account = session.book.get_root_account()
+    parts = account_path.split("/")
 
-def categories_from(account):
+    for part in parts:
+        account = account[part]
+
+    return account
+
+def categories_from(session, account):
     '''Create a financespy.Categories object from a Gnucash root account'''
-
+    
+    account = session.book.get_root_account()[account]
     categories_map = {}
 
     def _categories_from_dfs(account, parent):
@@ -125,12 +137,10 @@ class GnucashBackend:
     FinancesPy categories.
     '''
 
-    def __init__(self, session, account, categories, currency):
+    def __init__(self, session, account):
         self._session = session
         self._root_account = self._session.book.get_root_account()
         self._account = account
-        self.categories = categories
-        self._currency = currency
 
     def insert_record(self, date, record):
         expense_account = record.main_category()._account
@@ -140,7 +150,7 @@ class GnucashBackend:
         _insert_transaction(
             session=session,
             record=record,
-            currency=self._currency,
+            currency=self.currency,
             rec_date=date,
             account_to=expense_account,
             account_from=account_from
@@ -192,3 +202,10 @@ class GnucashBackend:
             split_to_transaction(Split(instance=split), self.categories)
             for split in query.run()
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._session.exit()
+        
