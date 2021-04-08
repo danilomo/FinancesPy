@@ -1,12 +1,10 @@
 import os
-from datetime import datetime
+
 
 from financespy.account import open_account
-from financespy.transaction import parse_transaction
 from financespy.xlsx_backend import XLSXBackend
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories
-from tests.test_utils import dt
+from tests.test_utils import get_categories, dt, parse_date, total_iterator, records
 
 
 _records = """2019-09-04;20.0, withdrawal
@@ -20,26 +18,6 @@ _records = """2019-09-04;20.0, withdrawal
 2019-09-20;55.58, lidl
 2019-09-21;50.0, withdrawal
 2019-09-21;25.0, train_ticket"""
-
-
-def parse_date(dt):
-    return datetime.strptime(dt, "%Y-%m-%d").date()
-
-
-def records(cats, records_):
-    recs = (tuple(line.split(";")) for line in records_.split("\n"))
-    return [
-        (parse_date(date), parse_transaction(trans, cats))
-        for date, trans in recs
-    ]
-
-
-def total_iterator(iterator):
-    weeks = [
-        sum(t.value for t in element.records()) for element in iterator
-    ]
-
-    return weeks
 
 
 def test_copy_from():
