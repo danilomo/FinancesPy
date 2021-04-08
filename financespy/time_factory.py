@@ -9,27 +9,25 @@ _months_short = ["jan", "feb", "mar", "apr", "may", "jun",
 _months_indexes = dict(zip(_months_short, range(1, 13)))
 
 
-def _getMonth(m):
+def parse_month(m):
     if isinstance(m, str) and m in _months_indexes:
         m = m.lower()
         return _months_indexes[m]
 
     return int(m)
 
-parse_month = _getMonth
-
 class TimeFactory:
     def __init__(self, backend):
         self.backend = backend
 
     def month(self, month, year):
-        return Month(month, year, self.backend)
+        return MonthIterable(month, year, self.backend)
 
     def day(self, day, month, year):
         return self.month(month, year).day(day)
 
 
-class Day:
+class DayIterable:
     def __init__(self, date, backend):
         self.date = date
         self.day = date.day
@@ -47,7 +45,7 @@ class Day:
         return self.backend.insert_record(self.date, record)
 
 
-class Week:
+class WeekIterable:
     def __init__(self, month, days):
         self.month = month
         self._days = days
@@ -62,7 +60,7 @@ class Week:
                 yield record
 
 
-class Month:
+class MonthIterable:
 
     class _MonthIterator:
         def __init__(self, m):
@@ -81,10 +79,10 @@ class Month:
 
             d = self._day
             self._day = self._day + datetime.timedelta(1)
-            return Day(d, self._month.backend)
+            return DayIterable(d, self._month.backend)
 
     def __init__(self, month, year, backend):
-        self.month = _getMonth(month)
+        self.month = parse_month(month)
         self.year = year
         self.backend = backend
 
@@ -96,7 +94,7 @@ class Month:
 
             if week_day == 6:
                 if current_week:
-                    yield Week(self, current_week)
+                    yield WeekIterable(self, current_week)
                     current_week = [day]
                 else:
                     current_week = [day]
@@ -104,7 +102,7 @@ class Month:
                 current_week.append(day)
 
         if current_week:
-            yield Week(self, current_week)
+            yield WeekIterable(self, current_week)
 
     def records(self):
         for day in self.days():
@@ -113,11 +111,11 @@ class Month:
                 yield record
 
     def days(self):
-        return Month._MonthIterator(self)
+        return MonthIterable._MonthIterator(self)
 
     def day(self, day):
         try:
-            return Day(datetime.date(
+            return DayIterable(datetime.date(
                 day=day,
                 month=self.month,
                 year=self.year), self.backend)
