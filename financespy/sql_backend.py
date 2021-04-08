@@ -24,7 +24,7 @@ def db_object(base, session):
 
 
 def Transaction(db):
-    class Transaction_(db.Model):
+    class TransactionInner(db.Model):
         __tablename__ = 'transactions'
 
         id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
@@ -41,7 +41,7 @@ def Transaction(db):
 
         __str__ = __repr__
 
-    return Transaction_
+    return TransactionInner
 
 
 class SQLBackend:

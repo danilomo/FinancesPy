@@ -10,7 +10,7 @@ class MemoryBackend(Backend):
     def __init__(self, categories):
         super().__init__()
         self._months = collections.defaultdict(
-            lambda: [[] for i in range(0, 32)]
+            lambda: [[] for _ in range(0, 32)]
         )
         self.categories = categories
 

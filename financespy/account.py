@@ -15,11 +15,17 @@ from financespy.categories import categories_from_list
 _current_year = datetime.datetime.now().year
 
 class OpenAccountError(Exception):
-    
     def __init__(self, message):
         self.message = message
 
 def open_account(account_path = None):
+    '''
+    Creates an Account object from a given operating system path. The path can point to any supported storage: csv files, Excel spreadsheets,
+    gnucash file, etc. Account metadata file stored as JSON is expected to be present, otherwise the method will throw an exception.
+
+    Please read the documentation for understanding the organization of files for each backend type and account metadata.
+    '''
+    
     if account_path is None:
         return open_default_account()
 
@@ -116,6 +122,10 @@ def open_gnucash(gnucash_file):
 
 @dataclass
 class AccountMetadata:
+    '''
+    Describes the properties of the account.
+    '''
+    
     name: str
     backend_type: str
     currency: str
@@ -124,6 +134,16 @@ class AccountMetadata:
 
 
 class Account:
+    '''
+    Provides access to a collection of financial transaction stored in some medium (gnucash file,
+    relational database, Excel spreadsheet, etc.). It exports query methods for retrieving transactions
+    for a given time interval (a day, a month, a year, etc.), and also a method for updating the storage (if supported).
+
+    This class just delegates the operations to the specific backend that is given on the constructor. However, the usage of this
+    class should be encouraged in conjunction with the "open_account" function that is able to create an account object
+    with the correcty backend and metadata already configured.
+    '''
+    
     def __init__(self, backend, account_metadata):
         backend.categories = account_metadata.categories
         backend.currency = account_metadata.currency
@@ -133,32 +153,70 @@ class Account:
         
 
     def day(self, day, month, year=_current_year):
+        '''
+        Give all transactions for a specific day. If the year parameter, is not supplied
+        it will use current year (as given by the operating system).
+        '''
+        
         return self.backend.day(day, month, year)
 
     def month(self, month, year=_current_year):
+        '''
+        Give all transactions for a specific month. If the year parameter, is not supplied
+        it will use current year (as given by the operating system).
+        '''
+        
         return self.backend.month(month, year)
 
     def records(self, date):
+        '''
+        Give all transactions for a specific date object. This can be any object that has the following attributes:
+        year, day and month. Usually it should be a datetime.date object, but a duck-typed object also can be used.
+        '''        
+        
         return self.backend.records(date)
 
     def insert_record(self, date, transaction):
+        '''
+        Insert a financial transaction at a specific date. Only the day/month/year values are important, the specific hour/minute
+        are not considered.
+        '''
+        
         self.backend.insert_record(date, transaction)
 
     def copy_year(self, account, year, tags=[], filters=[]):
+        '''Copies all transactions for an entire year from a source account
+        to the current account. The tags parameter can be used to apply a special tag
+        that can identify the transactions added by this methods. The filters parameter
+        can exclude all transactions that matches at least one filter from the list'''
+        
         for month in range(1, 13):
-            for trans in account.month(month, year=year).records():
-                matches_some_filter = False
-
-                for f in filters:
-                    if trans.matches_category(f):
-                        matches_some_filter = True
-                        break
-
-                if matches_some_filter:
-                    continue
-
+            transactions = filtered_records(
+                account.month(month, year=year).records(),
+                filters
+            )
+            
+            for trans in transactions:
                 for t in tags:
-                    cat = self._backend.category_from(t)
+                    cat = self.backend.category_from(t)
                     trans.add_category(cat)
 
                 self.insert_record(trans.date, trans)
+
+def filtered_records(records_it, filters):
+    '''Gives a filtered records iterator that contains only records
+    that doesn't match *any* filter from the filter list'''
+    
+    for trans in account.month(month, year=year).records():
+        matches_some_filter = False
+
+        for f in filters:
+            if trans.matches_category(f):
+                matches_some_filter = True
+                break
+
+        if matches_some_filter:
+            continue
+
+        yield trans
+    

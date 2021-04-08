@@ -24,13 +24,6 @@ class PieSection:
     def total(self):
         return _total(self.transactions)
 
-    def printLL(self):
-        print(self.label +
-              str([(t.value, t.categories[0].__class__.__name__)
-                   for t in self.transactions]))
-        if(self.next):
-            self.next.printLL()
-
 
 def section_factory(categories):
 
