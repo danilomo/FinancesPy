@@ -22,7 +22,7 @@ class FilesystemBackend(Backend):
 
         with open(self.file(date)) as f:
             for line in f:
-                transaction = parse_transaction(line.strip())
+                transaction = parse_transaction(line.strip(), self.categories)
                 transaction.date = date
                 yield transaction
 
