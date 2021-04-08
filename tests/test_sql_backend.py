@@ -38,14 +38,14 @@ def records(cats):
 
 def get_backend(categories):
     engine = create_engine('sqlite:///:memory:', echo=True)
-    Base = declarative_base()
+    base = declarative_base()
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
 
-    db = db_object(Base, session)
+    db = db_object(base, session)
 
     backend = SQLBackend(db, 1, categories)
-    Base.metadata.create_all(engine)
+    base.metadata.create_all(engine)
 
     return backend
 

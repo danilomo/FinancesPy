@@ -9,14 +9,12 @@ _months_short = ["jan", "feb", "mar", "apr", "may", "jun",
 _months_indexes = dict(zip(_months_short, range(1, 13)))
 
 
-def _getMonth(m):
+def parse_month(m):
     if isinstance(m, str) and m in _months_indexes:
         m = m.lower()
         return _months_indexes[m]
 
     return int(m)
-
-parse_month = _getMonth
 
 class TimeFactory:
     def __init__(self, backend):
@@ -84,7 +82,7 @@ class Month:
             return Day(d, self._month.backend)
 
     def __init__(self, month, year, backend):
-        self.month = _getMonth(month)
+        self.month = parse_month(month)
         self.year = year
         self.backend = backend
 

@@ -2,6 +2,10 @@ import financespy.money as money
 from financespy.money import Money
 
 
+class ParseTransactionError(Exception):
+    def __init__(self, message):
+        self.message = message
+
 class Transaction:
     def __init__(self, value, description, categories):
         self.value = money.Money(value) if type(value) != Money else value
@@ -64,7 +68,7 @@ def parse_transaction(record, categories, separator=","):
     elif isinstance(record, list):
         values = record
     else:
-        raise Exception(str(type(record)) + " not allowed as parameter.")
+        raise ParseTransactionError(f"{str(type(record))} type not allowed as parameter.")
 
     values = [s.strip() for s in values if s.strip()]
 
