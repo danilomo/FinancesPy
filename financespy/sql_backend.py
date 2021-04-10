@@ -1,15 +1,19 @@
+import json
 from datetime import date
+from sqlalchemy import and_
+import sqlalchemy
+
 import financespy.transaction
+from financespy.account import AccountMetadata
 from financespy.backend import CompositeBackend
 from financespy.money import Money
 from financespy.memory_backend import MemoryBackend
 from financespy.memory_backend import month_iterator_from_query
-from sqlalchemy import and_
+from financespy.categories import categories_from_list
 
 
-def db_object(base, session):
-    import sqlalchemy
 
+def db_object(base):
     class DB:
         def __init__(self):
             self.Model = base
@@ -18,13 +22,26 @@ def db_object(base, session):
             self.BigInteger = sqlalchemy.BigInteger
             self.String = sqlalchemy.String
             self.Date = sqlalchemy.Date
-            self.session = session
 
     return DB()
 
+def account_class(db):
 
-def Transaction(db):
-    class TransactionInner(db.Model):
+    class Account(db.Model):
+        __tablename__ = 'accounts'
+
+        id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
+        categories = db.Column(db.String)
+        name = db.Column(db.String)
+        currency = db.Column(db.String)
+        user_id = db.Column(db.Integer)
+        created_at = db.Column(db.Date)
+
+    return Account
+
+def transaction_class(db):
+    
+    class Transaction(db.Model):
         __tablename__ = 'transactions'
 
         id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
@@ -34,30 +51,45 @@ def Transaction(db):
         account_id = db.Column(db.Integer)
         date = db.Column(db.Date)
 
-        def __repr__(self):
+    return Transaction
 
-            # TODO: better string representation
-            return str((self.id, self.value, self.description, self.date))
+def read_account_metadata(session, account_id, account_class):
+    query = session.query(account_class).filter(account_class.id == account_id)
+    results = list(query)
 
-        __str__ = __repr__
+    if not results:
+        return None
 
-    return TransactionInner
+    row = results[0]
+    categories = categories_from_list(
+        json.loads(row.categories)
+    )
+
+    return AccountMetadata(
+        categories=categories,
+        currency=row.currency,
+        name=row.name,
+        properties={},
+        backend_type="sql"
+    )
+    
+    
 
 
 class SQLBackend:
-    def __init__(self, db, account_id, categories):
-        self.Transaction = Transaction(db)
-        self.db = db
-        self.session = db.session
+    
+
+    def __init__(self, account_id, session, transaction_class):
+        self.Transaction = transaction_class
+        self.session = session
         self.account_id = account_id
-        self.categories = categories
 
 
     def insert_record(self, date, trans):
         categories = (",".join(str(cat) for cat in trans.categories)
                       if trans.categories else "")
 
-        self.db.session.add(self.Transaction(
+        self.session.add(self.Transaction(
             value=int(trans.value),
             description=trans.description,
             categories=categories,
@@ -65,7 +97,7 @@ class SQLBackend:
             date=date
         ))
 
-        self.db.session.commit()
+        self.session.commit()
 
 
     def day(self, day, month, year):
