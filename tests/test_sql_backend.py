@@ -1,12 +1,15 @@
-
+import json
 from datetime import datetime
 
+import financespy.account as account
 from financespy.transaction import parse_transaction
 from financespy.sql_backend import SQLBackend
+from financespy.sql_backend import transaction_class, account_class
 from financespy.sql_backend import db_object
+from financespy.sql_backend import read_account_metadata
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories
-
+from tests.test_utils import get_categories_as_list
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -23,6 +26,12 @@ records_ = """2019-09-04;20.0, withdrawal
 2019-09-21;50.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
+base = declarative_base()
+db = db_object(base)
+Transaction = transaction_class(db)
+Account = account_class(db)
+
+categories = get_categories_as_list()
 
 def parse_date(dt):
     return datetime.strptime(dt, "%Y-%m-%d").date()
@@ -36,18 +45,30 @@ def records(cats):
     ]
 
 
-def get_backend(categories):
+def open_sql_account():
     engine = create_engine('sqlite:///:memory:', echo=True)
-    base = declarative_base()
+    base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
+    
+    test_account = Account(
+        name="savings",
+        currency="eur",
+        categories=json.dumps(categories),
+        user_id=1
+    )
+    session.add(test_account)
+    session.commit()
 
-    db = db_object(base, session)
-
-    backend = SQLBackend(db, 1, categories)
-    base.metadata.create_all(engine)
-
-    return backend
+    account_data = read_account_metadata(session, 1, Account)
+    
+    backend = SQLBackend(
+        session=session,
+        account_id=1,
+        transaction_class=Transaction
+    )
+    
+    return account.Account(backend, account_data)
 
 
 def total_iterator(iterator):
@@ -59,8 +80,10 @@ def total_iterator(iterator):
 
 
 def test_month_iterator():
-    cats = get_categories()
-    backend = get_backend(cats)
+    account = open_sql_account()
+    
+    backend = account.backend
+    cats = backend.categories
     memory_backend = MemoryBackend(cats)
 
     for date, rec in records(cats):
