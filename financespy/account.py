@@ -4,8 +4,6 @@ from pathlib import Path
 import json
 import re
 from dataclasses import dataclass
-from financespy import gnucash_backend
-from financespy.gnucash_backend import GnucashBackend
 from financespy.xlsx_backend import XLSXBackend
 from financespy.filesystem_backend import FilesystemBackend
 from financespy.categories import Categories
@@ -91,6 +89,8 @@ def read_metadata(account_json):
 
 def open_gnucash(gnucash_file):
     from gnucash import Session
+    from financespy import gnucash_backend
+    from financespy.gnucash_backend import GnucashBackend
     
     path = Path(gnucash_file)
     metadata_file = re.sub('[.]gnucash$', ".json", path.name)
