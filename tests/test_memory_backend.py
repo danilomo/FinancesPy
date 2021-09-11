@@ -1,8 +1,8 @@
 import pytest
 
-from financespy.transaction import parse_transaction
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories, dt, parse_date, total_iterator, records
+from financespy.transaction import parse_transaction
+from tests.test_utils import get_categories, dt, total_iterator, records
 
 
 def test_parse_string():

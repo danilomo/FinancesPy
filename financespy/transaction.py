@@ -6,6 +6,7 @@ class ParseTransactionError(Exception):
     def __init__(self, message):
         self.message = message
 
+
 class Transaction:
     def __init__(self, value, description, categories):
         self.value = money.Money(value) if type(value) != Money else value

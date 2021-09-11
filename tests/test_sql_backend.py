@@ -1,18 +1,18 @@
 import json
 from datetime import datetime
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
 import financespy.account as account
-from financespy.transaction import parse_transaction
+from financespy.memory_backend import MemoryBackend
 from financespy.sql_backend import SQLBackend
-from financespy.sql_backend import transaction_class, account_class
 from financespy.sql_backend import db_object
 from financespy.sql_backend import read_account_metadata
-from financespy.memory_backend import MemoryBackend
+from financespy.sql_backend import transaction_class, account_class
+from financespy.transaction import parse_transaction
 from tests.test_utils import get_categories_as_list
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
 
 records_ = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
@@ -33,6 +33,7 @@ Account = account_class(db)
 
 categories = get_categories_as_list()
 
+
 def parse_date(dt):
     return datetime.strptime(dt, "%Y-%m-%d").date()
 
@@ -50,7 +51,7 @@ def open_sql_account():
     base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
-    
+
     test_account = Account(
         name="savings",
         currency="eur",
@@ -61,13 +62,13 @@ def open_sql_account():
     session.commit()
 
     account_data = read_account_metadata(session, 1, Account)
-    
+
     backend = SQLBackend(
         session=session,
         account_id=1,
         transaction_class=Transaction
     )
-    
+
     return account.Account(backend, account_data)
 
 
@@ -81,7 +82,7 @@ def total_iterator(iterator):
 
 def test_month_iterator():
     account = open_sql_account()
-    
+
     backend = account.backend
     cats = backend.categories
     memory_backend = MemoryBackend(cats)

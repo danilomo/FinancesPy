@@ -26,7 +26,6 @@ class PieSection:
 
 
 def section_factory(categories):
-
     def section(label, fn=None):
         if fn is None:
             def fn(t):

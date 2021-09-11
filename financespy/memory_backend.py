@@ -1,10 +1,12 @@
 import collections
-from financespy.transaction import parse_transaction
-from financespy.transaction import Transaction
+from datetime import datetime
+
 from financespy.backend import Backend
 from financespy.backend import CompositeBackend
 from financespy.time_factory import parse_month
-from datetime import datetime
+from financespy.transaction import Transaction
+from financespy.transaction import parse_transaction
+
 
 class MemoryBackend(Backend):
     def __init__(self, categories):
@@ -36,8 +38,8 @@ class MemoryBackend(Backend):
 def month_iterator_from_query(month, year, backend, query):
     m = parse_month(month)
     firstday = datetime(day=1, month=m, year=year)
-    lastday = datetime(day=30, month=m, year=year) # fix wrong logic
-    
+    lastday = datetime(day=30, month=m, year=year)  # fix wrong logic
+
     results = query(firstday, lastday)
     mb = MemoryBackend(backend.categories)
 

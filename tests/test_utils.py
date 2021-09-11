@@ -21,18 +21,22 @@ default_categories = [
     {"commuting": ["monthly_ticket", "day_ticket", "single_ticket"]}
 ]
 
+
 def get_categories_as_list():
     return default_categories
+
 
 def get_categories():
     return categories.categories_from_list(default_categories)
 
-def dt(day, month, year = 2019):
+
+def dt(day, month, year=2019):
     return datetime.date(
-        day = day,
-        month = month,
-        year = year
+        day=day,
+        month=month,
+        year=year
     )
+
 
 def parse_date(dt):
     return datetime.datetime.strptime(dt, "%Y-%m-%d").date()

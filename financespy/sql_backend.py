@@ -1,16 +1,14 @@
 import json
 from datetime import date
-from sqlalchemy import and_
+
 import sqlalchemy
+from sqlalchemy import and_
 
 import financespy.transaction
 from financespy.account import AccountMetadata
-from financespy.backend import CompositeBackend
-from financespy.money import Money
-from financespy.memory_backend import MemoryBackend
-from financespy.memory_backend import month_iterator_from_query
 from financespy.categories import categories_from_list
-
+from financespy.memory_backend import month_iterator_from_query
+from financespy.money import Money
 
 
 def db_object(base):
@@ -25,8 +23,8 @@ def db_object(base):
 
     return DB()
 
-def account_class(db):
 
+def account_class(db):
     class Account(db.Model):
         __tablename__ = 'accounts'
 
@@ -39,8 +37,8 @@ def account_class(db):
 
     return Account
 
+
 def transaction_class(db):
-    
     class Transaction(db.Model):
         __tablename__ = 'transactions'
 
@@ -52,6 +50,7 @@ def transaction_class(db):
         date = db.Column(db.Date)
 
     return Transaction
+
 
 def read_account_metadata(session, account_id, account_class):
     query = session.query(account_class).filter(account_class.id == account_id)
@@ -72,18 +71,14 @@ def read_account_metadata(session, account_id, account_class):
         properties={},
         backend_type="sql"
     )
-    
-    
 
 
 class SQLBackend:
-    
 
     def __init__(self, account_id, session, transaction_class):
         self.Transaction = transaction_class
         self.session = session
         self.account_id = account_id
-
 
     def insert_record(self, date, trans):
         categories = (",".join(str(cat) for cat in trans.categories)
@@ -99,12 +94,10 @@ class SQLBackend:
 
         self.session.commit()
 
-
     def day(self, day, month, year):
         dt = date(day=day, month=month, year=year)
         result = self._query().filter(self.Transaction.date == dt)
         return (self._transaction(t) for t in result)
-
 
     def month(self, month, year):
         def query(firstday, lastday):
@@ -113,13 +106,11 @@ class SQLBackend:
                      self.Transaction.date <= lastday.date()))
 
             return (self._transaction(t) for t in iterator)
-            
-        return month_iterator_from_query(month, year, self, query)
 
+        return month_iterator_from_query(month, year, self, query)
 
     def _query(self):
         return self.session.query(self.Transaction)
-
 
     def _transaction(self, t):
         categories = list(self.categories.category(cat) for cat
@@ -132,7 +123,6 @@ class SQLBackend:
         )
         result.date = t.date
         return result
-
 
     def all(self):
         return self._query().all()

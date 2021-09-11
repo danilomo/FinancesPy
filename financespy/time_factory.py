@@ -16,6 +16,7 @@ def parse_month(m):
 
     return int(m)
 
+
 class TimeFactory:
     def __init__(self, backend):
         self.backend = backend
@@ -61,7 +62,6 @@ class WeekIterable:
 
 
 class MonthIterable:
-
     class _MonthIterator:
         def __init__(self, m):
             self._month = m

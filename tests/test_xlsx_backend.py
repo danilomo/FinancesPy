@@ -1,19 +1,18 @@
 from financespy.account import open_account
 from financespy.transaction import parse_transaction
 from financespy.xlsx_backend import XLSXBackend
-from tests.test_utils import get_categories
 from tests.test_utils import dt
-import os
+from tests.test_utils import get_categories
 
 
 def backend(path="./tests/resources/finances"):
     cats = get_categories()
-    backend = XLSXBackend(path)
-    
-    backend.categories = cats
-    backend.currency = "eur"
+    back = XLSXBackend(path)
 
-    return backend
+    back.categories = cats
+    back.currency = "eur"
+
+    return back
 
 
 def list_records(be, date_):
@@ -21,6 +20,7 @@ def list_records(be, date_):
         (str(trans.main_category()), float(trans.value))
         for trans in be.records(date_)
     ]
+
 
 def test_open_xlsx_account():
     account = open_account("./tests/resources/finances")
@@ -50,7 +50,8 @@ def test_list_records():
 
 
 def test_insert_record():
-    os.system("cp -R ./tests/resources/finances ./finances_copy")
+    import shutil
+    shutil.copytree("./tests/resources/finances", "./finances_copy")
     be = backend("./finances_copy")
 
     be.insert_record(
@@ -76,4 +77,4 @@ def test_insert_record():
     assert jan_expected == list_records(be, dt(day=3, month=1))
     assert mar_expected == list_records(be, dt(day=30, month=3))
 
-    os.system("rm -rf ./finances_copy")
+    shutil.rmtree("./finances_copy")

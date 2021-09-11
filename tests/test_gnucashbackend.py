@@ -1,6 +1,6 @@
 import os
-import pytest
 from datetime import datetime
+
 try:
     from gnucash import Session
     from financespy.account import open_account
@@ -12,7 +12,6 @@ try:
     _gnucash_module_loaded = True
 except:
     _gnucash_module_loaded = False
-
 
 records_ = """2019-09-04;20.0, Books
 2019-09-05;20.58, Cable
@@ -48,33 +47,33 @@ def total_iterator(iterator):
 
 
 def test_insert_records():
-    if not _gnucash_module_loaded:        
+    if not _gnucash_module_loaded:
         return
-    
+
     os.system("cp -R ./tests/resources/gnucash ./gnucash")
-    
+
     try:
         account = open_account("./gnucash/myacc.gnucash")
-        
+
         backend = account.backend
         session = account.backend._session
         categories = backend.categories
         memory_backend = MemoryBackend(categories)
-        
+
         # populating backends
         for date, rec in records(categories):
             backend.insert_record(date, rec)
             memory_backend.insert_record(date, rec)
-            
+
         # assert we read the same in both backends
         weeks1 = backend.month("sep", 2019).weeks()
         weeks2 = memory_backend.month("sep", 2019).weeks()
-        
+
         assert total_iterator(weeks1) == total_iterator(weeks2)
-        
+
         month1 = backend.month("sep", 2019).days()
         month2 = memory_backend.month("sep", 2019).days()
-        
+
         assert total_iterator(month1) == total_iterator(month2)
 
         session.save()

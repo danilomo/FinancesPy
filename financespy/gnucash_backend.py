@@ -6,27 +6,14 @@ from financespy.transaction import Transaction
 from datetime import datetime
 from financespy.memory_backend import month_iterator_from_query
 
-
 from gnucash import \
     QOF_QUERY_AND, \
-    QOF_QUERY_OR, \
-    QOF_QUERY_NAND, \
-    QOF_QUERY_NOR, \
-    QOF_QUERY_XOR
-
+    QOF_QUERY_NAND
 
 from gnucash import \
-    QOF_STRING_MATCH_NORMAL, \
-    QOF_STRING_MATCH_CASEINSENSITIVE
-
-
-from gnucash import \
-    QOF_COMPARE_LT, \
     QOF_COMPARE_LTE, \
     QOF_COMPARE_EQUAL, \
-    QOF_COMPARE_GT, \
-    QOF_COMPARE_GTE, \
-    QOF_COMPARE_NEQ
+    QOF_COMPARE_GTE
 
 # These constants come from enums from C implementation
 # see https://code.gnucash.org/docs/MAINT/group__Query.html
@@ -44,10 +31,11 @@ QOF_PARAM_GUID = 'guid'
 gnucash.gnucash_core.Account.__getitem__ = \
     lambda self, a: self.lookup_by_name(a)
 
+
 def account_for(session, account_path):
     '''Lookup a gnucash account object from a '/' separated string.
        Example: account_for(session, "Assets/Current Assets/Checking Accounts")'''
-    
+
     account = session.book.get_root_account()
     parts = account_path.split("/")
 
@@ -56,9 +44,10 @@ def account_for(session, account_path):
 
     return account
 
+
 def categories_from(session, account):
     '''Create a financespy.Categories object from a Gnucash root account'''
-    
+
     account = session.book.get_root_account()[account]
     categories_map = {}
 
@@ -167,6 +156,7 @@ class GnucashBackend:
                 date_from=firstday,
                 date_to=lastday
             )
+
         return month_iterator_from_query(month, year, self, query)
 
     def _query(self, date=None, date_from=None, date_to=None, filters=[]):
@@ -208,4 +198,3 @@ class GnucashBackend:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._session.exit()
-        

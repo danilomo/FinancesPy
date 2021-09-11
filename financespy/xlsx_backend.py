@@ -1,7 +1,8 @@
 from openpyxl import load_workbook
-from financespy.transaction import parse_transaction
-from financespy.transaction import Transaction
+
 from financespy.backend import Backend
+from financespy.transaction import Transaction
+from financespy.transaction import parse_transaction
 
 
 class XLSXBackend(Backend):
@@ -39,7 +40,7 @@ class XLSXBackend(Backend):
         workbook = self._get_workbook(date)
 
         return self._rows_to_records(
-            workbook.worksheets[date.month-1].rows,
+            workbook.worksheets[date.month - 1].rows,
             date
         )
 
@@ -48,7 +49,7 @@ class XLSXBackend(Backend):
             raise TypeError("Supplied parameter is not a transaction")
 
         workbook = self._get_workbook(date)
-        sheet = workbook.worksheets[date.month-1]
+        sheet = workbook.worksheets[date.month - 1]
 
         sheet.append([
             date.day,

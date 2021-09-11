@@ -1,11 +1,6 @@
-import os
-
-
 from financespy.account import open_account
-from financespy.xlsx_backend import XLSXBackend
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories, dt, parse_date, total_iterator, records
-
+from tests.test_utils import get_categories, total_iterator, records
 
 _records = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
@@ -22,7 +17,7 @@ _records = """2019-09-04;20.0, withdrawal
 
 def test_copy_from():
     account = open_account("./tests/resources/finances_csv/")
-    
+
     cats = get_categories()
     mb = MemoryBackend(cats)
     mb_expected = MemoryBackend(cats)
