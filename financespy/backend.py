@@ -10,7 +10,6 @@ def _satisfy_filters(record, filters):
 
 
 class Backend:
-
     def __init__(self):
         self._timef = time_factory.TimeFactory(self)
 
@@ -32,12 +31,11 @@ class Backend:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        '''Empty exit method for allowing any backend to be used in a with block'''
+        """Empty exit method for allowing any backend to be used in a with block"""
         pass
 
 
 class CompositeBackend:
-
     def __init__(self, readbe, writebe):
         self._readbe = readbe
         self._writebe = writebe

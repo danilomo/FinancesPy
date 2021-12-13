@@ -6,35 +6,29 @@ from financespy.transaction import Transaction
 from datetime import datetime
 from financespy.memory_backend import month_iterator_from_query
 
-from gnucash import \
-    QOF_QUERY_AND, \
-    QOF_QUERY_NAND
+from gnucash import QOF_QUERY_AND, QOF_QUERY_NAND
 
-from gnucash import \
-    QOF_COMPARE_LTE, \
-    QOF_COMPARE_EQUAL, \
-    QOF_COMPARE_GTE
+from gnucash import QOF_COMPARE_LTE, QOF_COMPARE_EQUAL, QOF_COMPARE_GTE
 
 # These constants come from enums from C implementation
 # see https://code.gnucash.org/docs/MAINT/group__Query.html
 # (please report if link is broken)
 
-SPLIT_TRANS = 'trans'
-TRANS_DATE_POSTED = 'date-posted'
+SPLIT_TRANS = "trans"
+TRANS_DATE_POSTED = "date-posted"
 QOF_DATE_MATCH_NORMAL = 1
 QOF_DATE_MATCH_DAY = 2
 QOF_GUID_MATCH_NORMAL = 1
 PARAM_LIST = [SPLIT_TRANS, TRANS_DATE_POSTED]
-SPLIT_ACCOUNT = 'account'
-QOF_PARAM_GUID = 'guid'
+SPLIT_ACCOUNT = "account"
+QOF_PARAM_GUID = "guid"
 
-gnucash.gnucash_core.Account.__getitem__ = \
-    lambda self, a: self.lookup_by_name(a)
+gnucash.gnucash_core.Account.__getitem__ = lambda self, a: self.lookup_by_name(a)
 
 
 def account_for(session, account_path):
-    '''Lookup a gnucash account object from a '/' separated string.
-       Example: account_for(session, "Assets/Current Assets/Checking Accounts")'''
+    """Lookup a gnucash account object from a '/' separated string.
+    Example: account_for(session, "Assets/Current Assets/Checking Accounts")"""
 
     account = session.book.get_root_account()
     parts = account_path.split("/")
@@ -46,7 +40,7 @@ def account_for(session, account_path):
 
 
 def categories_from(session, account):
-    '''Create a financespy.Categories object from a Gnucash root account'''
+    """Create a financespy.Categories object from a Gnucash root account"""
 
     account = session.book.get_root_account()[account]
     categories_map = {}
@@ -75,17 +69,12 @@ def split_to_transaction(split, categories):
     category = categories.category(split.GetAccount().name)
     description = transaction.GetDescription()
 
-    result = Transaction(
-        value=value,
-        categories=[category],
-        description=description
-    )
+    result = Transaction(value=value, categories=[category], description=description)
     result.date = transaction.GetDate().date()
     return result
 
 
-def _insert_transaction(session, record, currency,
-                        rec_date, account_to, account_from):
+def _insert_transaction(session, record, currency, rec_date, account_to, account_from):
     book = session.book
 
     # set currency
@@ -115,7 +104,7 @@ def _insert_transaction(session, record, currency,
 
 
 class GnucashBackend:
-    '''Implements a financespy backend class that uses a gnucash file as storage
+    """Implements a financespy backend class that uses a gnucash file as storage
 
     A GnucashBackend object is bounded to a Gnucash session and a specific
     account from the book. This account should be some child from "Assets",
@@ -124,7 +113,7 @@ class GnucashBackend:
     account, savings account, etc. are considered accounts in FinancesPy.
     Expenses accounts from gnucash (books, groceries, etc.) are mapped to
     FinancesPy categories.
-    '''
+    """
 
     def __init__(self, session, account):
         self._session = session
@@ -142,7 +131,7 @@ class GnucashBackend:
             currency=self.currency,
             rec_date=date,
             account_to=expense_account,
-            account_from=account_from
+            account_from=account_from,
         )
 
     def day(self, day, month, year):
@@ -152,40 +141,37 @@ class GnucashBackend:
 
     def month(self, month, year):
         def query(firstday, lastday):
-            return self._query(
-                date_from=firstday,
-                date_to=lastday
-            )
+            return self._query(date_from=firstday, date_to=lastday)
 
         return month_iterator_from_query(month, year, self, query)
 
     def _query(self, date=None, date_from=None, date_to=None, filters=[]):
         book = self._session.book
         query = gnucash.Query()
-        query.search_for('Split')
+        query.search_for("Split")
         query.set_book(book)
         account_guid = self._account.GetGUID()
 
         query.add_guid_match(
-            [SPLIT_ACCOUNT, QOF_PARAM_GUID], account_guid, QOF_QUERY_AND)
+            [SPLIT_ACCOUNT, QOF_PARAM_GUID], account_guid, QOF_QUERY_AND
+        )
 
         if date:
             pred_data = gnucash.gnucash_core.QueryDatePredicate(
-                QOF_COMPARE_EQUAL,
-                QOF_DATE_MATCH_DAY,
-                date)
+                QOF_COMPARE_EQUAL, QOF_DATE_MATCH_DAY, date
+            )
             query.add_term(PARAM_LIST, pred_data, QOF_QUERY_AND)
         else:
             if date_from:
                 pred_data = gnucash.gnucash_core.QueryDatePredicate(
-                    QOF_COMPARE_GTE,
-                    QOF_DATE_MATCH_NORMAL, date_from)
+                    QOF_COMPARE_GTE, QOF_DATE_MATCH_NORMAL, date_from
+                )
                 query.add_term(PARAM_LIST, pred_data, QOF_QUERY_AND)
 
             if date_to:
                 pred_data = gnucash.gnucash_core.QueryDatePredicate(
-                    QOF_COMPARE_LTE,
-                    QOF_DATE_MATCH_NORMAL, date_to)
+                    QOF_COMPARE_LTE, QOF_DATE_MATCH_NORMAL, date_to
+                )
                 query.add_term(PARAM_LIST, pred_data, QOF_QUERY_AND)
 
         return (

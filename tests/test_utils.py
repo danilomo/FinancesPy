@@ -6,19 +6,32 @@ from financespy.transaction import parse_transaction
 default_categories = [
     "misc",
     "uncategorized",
-    {"food": [
-        {"groceries": ["lidl", "aldi", "edeka", "rewe"]},
-        "restaurant",
-        "street_food"
-    ]},
+    {
+        "food": [
+            {"groceries": ["lidl", "aldi", "edeka", "rewe"]},
+            "restaurant",
+            "street_food",
+        ]
+    },
     {"utilities": ["internet", "electricity", "cellphone_balance"]},
     {"travel": ["plane_ticket", "hotel_reservation", "train_ticket"]},
     {"tax": ["tv_tax"]},
-    {"shopping": ["electronics", "clothing", "sports", "home_goods",
-                  "furniture", "shopping_misc", "shoes", "purses", "jewlery"]},
+    {
+        "shopping": [
+            "electronics",
+            "clothing",
+            "sports",
+            "home_goods",
+            "furniture",
+            "shopping_misc",
+            "shoes",
+            "purses",
+            "jewlery",
+        ]
+    },
     {"education": [{"course_fee": ["german_course"]}, "textbook", "school_supplies"]},
     {"body_and_hygiene": ["perfume", "hair_product", "hairdresser", "nails"]},
-    {"commuting": ["monthly_ticket", "day_ticket", "single_ticket"]}
+    {"commuting": ["monthly_ticket", "day_ticket", "single_ticket"]},
 ]
 
 
@@ -31,11 +44,7 @@ def get_categories():
 
 
 def dt(day, month, year=2019):
-    return datetime.date(
-        day=day,
-        month=month,
-        year=year
-    )
+    return datetime.date(day=day, month=month, year=year)
 
 
 def parse_date(dt):
@@ -44,15 +53,10 @@ def parse_date(dt):
 
 def records(cats, records_):
     recs = (tuple(line.split(";")) for line in records_.split("\n"))
-    return [
-        (parse_date(date), parse_transaction(trans, cats))
-        for date, trans in recs
-    ]
+    return [(parse_date(date), parse_transaction(trans, cats)) for date, trans in recs]
 
 
 def total_iterator(iterator):
-    weeks = [
-        sum(t.value for t in element.records()) for element in iterator
-    ]
+    weeks = [sum(t.value for t in element.records()) for element in iterator]
 
     return weeks

@@ -6,7 +6,6 @@ def _total(iter_):
 
 
 class PieSection:
-
     def __init__(self, label, fn):
         self.label = label
         self.fn = fn
@@ -28,10 +27,10 @@ class PieSection:
 def section_factory(categories):
     def section(label, fn=None):
         if fn is None:
+
             def fn(t):
-                return t.matches_category(
-                    categories.category(label)
-                )
+                return t.matches_category(categories.category(label))
+
         return PieSection(label, fn)
 
     return section
@@ -65,16 +64,11 @@ class PieChart:
     def as_data_frame(self):
         labels = [sc.label for sc in self._sections]
         values = [sc.total() for sc in self._sections]
-        return pd.DataFrame(
-            {"values": values, "labels": labels},
-            index=labels)
+        return pd.DataFrame({"values": values, "labels": labels}, index=labels)
 
     def add_records(self, records):
         for trans in records:
             self.add_transaction(trans)
 
     def sections(self):
-        return {
-            section.label: section
-            for section in self._sections
-        }
+        return {section.label: section for section in self._sections}

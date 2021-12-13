@@ -1,5 +1,4 @@
 class Category:
-
     def __init__(self, name, parent=None):
         self.name = name
         self._parent = parent
@@ -24,16 +23,12 @@ class Category:
 
 
 class Categories:
-
     def __init__(self, categories, default_category):
         self._categories = categories
         self._default = default_category
 
     def category(self, category):
-        return self._categories.get(
-            category,
-            self._default
-        )
+        return self._categories.get(category, self._default)
 
 
 def categories_from_list(cats):
@@ -43,17 +38,11 @@ def categories_from_list(cats):
     def aux(catmap, cats, parent):
         for cat in cats:
             if type(cat) is str:
-                category = Category(
-                    cat,
-                    parent
-                )
+                category = Category(cat, parent)
                 catmap[cat] = category
             elif type(cat) is dict:
                 cat_name = cat.keys().__iter__().__next__()
-                category = Category(
-                    cat_name,
-                    parent
-                )
+                category = Category(cat_name, parent)
                 catmap[cat_name] = category
                 aux(catmap, cat[cat_name], category)
 

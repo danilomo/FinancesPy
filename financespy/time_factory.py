@@ -1,10 +1,34 @@
 import datetime
 
-months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
-          'august', 'september', 'october', 'november', 'december']
+months = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+]
 
-_months_short = ["jan", "feb", "mar", "apr", "may", "jun",
-                 "jul", "aug", "sep", "oct", "nov", "dec"]
+_months_short = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+]
 
 _months_indexes = dict(zip(_months_short, range(1, 13)))
 
@@ -65,9 +89,7 @@ class MonthIterable:
     class _MonthIterator:
         def __init__(self, m):
             self._month = m
-            self._first = datetime.date(day=1,
-                                        month=m.month,
-                                        year=m.year)
+            self._first = datetime.date(day=1, month=m.month, year=m.year)
             self._day = self._first
 
         def __iter__(self):
@@ -115,9 +137,8 @@ class MonthIterable:
 
     def day(self, day):
         try:
-            return DayIterable(datetime.date(
-                day=day,
-                month=self.month,
-                year=self.year), self.backend)
+            return DayIterable(
+                datetime.date(day=day, month=self.month, year=self.year), self.backend
+            )
         except Exception:
             return None

@@ -21,8 +21,7 @@ class Transaction:
         return Transaction(self.value.abs(), self.description, self.categories)
 
     def __repr__(self):
-        return ("%s, %s, %s" % (str(self.value),
-                                self.description, str(self.categories)))
+        return "%s, %s, %s" % (str(self.value), self.description, str(self.categories))
 
     def main_category(self):
         return self.categories[0]
@@ -50,14 +49,14 @@ class Transaction:
         result = {
             "value": int(self.value),
             "description": self.description,
-            "categories": [cat.name for cat in self.categories]
+            "categories": [cat.name for cat in self.categories],
         }
 
         if self.date is not None:
             result["date"] = {
                 "day": self.date.day,
                 "month": self.date.month,
-                "year": self.date.year
+                "year": self.date.year,
             }
 
         return result
@@ -69,7 +68,9 @@ def parse_transaction(record, categories, separator=","):
     elif isinstance(record, list):
         values = record
     else:
-        raise ParseTransactionError(f"{str(type(record))} type not allowed as parameter.")
+        raise ParseTransactionError(
+            f"{str(type(record))} type not allowed as parameter."
+        )
 
     values = [s.strip() for s in values if s.strip()]
 

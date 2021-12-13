@@ -32,16 +32,11 @@ def parse_date(dt):
 
 def records(cats):
     recs = (tuple(line.split(";")) for line in records_.split("\n"))
-    return [
-        (parse_date(date), parse_transaction(trans, cats))
-        for date, trans in recs
-    ]
+    return [(parse_date(date), parse_transaction(trans, cats)) for date, trans in recs]
 
 
 def total_iterator(iterator):
-    weeks = [
-        sum(t.value for t in element.records()) for element in iterator
-    ]
+    weeks = [sum(t.value for t in element.records()) for element in iterator]
 
     return weeks
 

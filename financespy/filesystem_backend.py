@@ -3,8 +3,20 @@ import os
 from financespy.backend import Backend
 from financespy.transaction import parse_transaction
 
-_months = ["jan", "feb", "mar", "apr", "may", "jun",
-           "jul", "aug", "sep", "oct", "nov", "dec"]
+_months = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+]
 
 
 class FilesystemBackend(Backend):

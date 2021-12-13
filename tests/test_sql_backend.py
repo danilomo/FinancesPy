@@ -40,42 +40,30 @@ def parse_date(dt):
 
 def records(cats):
     recs = (tuple(line.split(";")) for line in records_.split("\n"))
-    return [
-        (parse_date(date), parse_transaction(trans, cats))
-        for date, trans in recs
-    ]
+    return [(parse_date(date), parse_transaction(trans, cats)) for date, trans in recs]
 
 
 def open_sql_account():
-    engine = create_engine('sqlite:///:memory:', echo=True)
+    engine = create_engine("sqlite:///:memory:", echo=True)
     base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
 
     test_account = Account(
-        name="savings",
-        currency="eur",
-        categories=json.dumps(categories),
-        user_id=1
+        name="savings", currency="eur", categories=json.dumps(categories), user_id=1
     )
     session.add(test_account)
     session.commit()
 
     account_data = read_account_metadata(session, 1, Account)
 
-    backend = SQLBackend(
-        session=session,
-        account_id=1,
-        transaction_class=Transaction
-    )
+    backend = SQLBackend(session=session, account_id=1, transaction_class=Transaction)
 
     return account.Account(backend, account_data)
 
 
 def total_iterator(iterator):
-    weeks = [
-        sum(t.value for t in element.records()) for element in iterator
-    ]
+    weeks = [sum(t.value for t in element.records()) for element in iterator]
 
     return weeks
 
