@@ -4,6 +4,7 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from datetime import date
 
 from financespy.categories import Categories
 from financespy.categories import categories_from_list
@@ -27,7 +28,9 @@ def open_account(account_path=None):
     """
 
     if account_path is None:
-        return open_default_account()
+        #return open_default_account()
+        # TODO implement default account
+        pass
 
     if os.path.isdir(account_path):
         return open_folder(account_path)
@@ -151,6 +154,18 @@ class Account:
         self.backend = backend
         self.metadata = account_metadata
 
+    def transactions(self, date_from, date_to):
+        # TODO - if date_from > date_to - throw error
+        #
+        # if a backend-specific implementation exists, we use it.
+        # It can be more efficient than our default implementation
+        try:
+            return self.backend.transactions(date_from, date_to)
+        except:
+            pass
+
+        return transactions_per_range(self.backend, date_from, date_to)
+
     def day(self, day, month, year=_current_year):
         """
         Give all transactions for a specific day. If the year parameter, is not supplied
@@ -206,7 +221,7 @@ def filtered_records(records_it, filters):
     """Gives a filtered records iterator that contains only records
     that doesn't match *any* filter from the filter list"""
 
-    for trans in account.month(month, year=year).records():
+    for trans in records_it:
         matches_some_filter = False
 
         for f in filters:
@@ -218,3 +233,25 @@ def filtered_records(records_it, filters):
             continue
 
         yield trans
+
+
+def transactions_per_range(backend, date_from, date_to):
+    year_from = date_from.year
+    year_to = date_to.year
+
+    def iterator():
+        for year in range(year_from, year_to+1):
+            for month in range(1,13):
+                dt = date(year=year, month=month, day=1)
+                if dt < date_from or dt > date_to:
+                        continue
+
+                for transaction in backend.month(year=year, month=month).records():
+                    dt = transaction.date
+
+                    if dt < date_from or dt > date_to:
+                        continue
+
+                    yield transaction
+
+    return iterator()

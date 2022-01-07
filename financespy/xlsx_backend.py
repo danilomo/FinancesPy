@@ -15,12 +15,12 @@ class XLSXBackend(Backend):
         return self.folder + "/" + str(date.year) + ".xlsx"
 
     def _get_workbook(self, date):
-        if date.month not in self._workbooks:
+        if date.year not in self._workbooks:
             workbook = load_workbook(filename=self._filename(date))
             self._workbooks[date.year] = workbook
             return workbook
 
-        return self._workbooks[date.month]
+        return self._workbooks[date.year]
 
     def _rows_to_records(self, rows, date):
         return (
