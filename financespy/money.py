@@ -262,6 +262,24 @@ class Money:
     def __eq__(self, obj):
         return isinstance(obj, Money) and obj._cents == self._cents
 
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+
+    def __lt__(self, obj):
+        return self._cents < obj._cents
+
+    def __le__(self, obj):
+        return self._cents <= obj._cents
+
+    def __ge__(self, obj):
+        return self._cents >= obj._cents
+
+    def __gt__(self, obj):
+        return self._cents > obj._cents
+
+    def __hash__(self):
+        return self._cents.__hash__()
+
     def abs(self):
         return Money(cents=abs(self._cents))
 

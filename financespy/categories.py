@@ -1,7 +1,7 @@
 class Category:
     def __init__(self, name, parent=None):
         self.name = name
-        self._parent = parent
+        self.parent = parent
 
     def __str__(self):
         return self.name
@@ -14,10 +14,10 @@ class Category:
         if type(cat) is Category and self.name == cat.name:
             return True
 
-        if self._parent is None:
+        if self.parent is None:
             return False
 
-        return self._parent.matches(cat)
+        return self.parent.matches(cat)
 
     __repr__ = __str__
 
@@ -29,6 +29,39 @@ class Categories:
 
     def category(self, category):
         return self._categories.get(category, self._default)
+
+    @property
+    def all(self):
+        return list(self._categories.keys())
+
+    def categories(self, expression):
+
+        if expression[0] == "[":
+            cats = expression[1:-1].split(",")
+            return [self.category(cat) for cat in cats]
+
+        if expression == "main_categories" or expression == "expenses":
+            return self.children(self.category("expenses"))
+
+        name, prop = expression.split(".")
+
+        if prop == "children":
+            return [
+                cat
+                for cat in self._categories.values()
+                if cat.parent and cat.parent.name == name
+            ]
+
+        return []
+
+    def children(self, category):
+        name = category.name
+
+        return [
+            cat
+            for cat in self._categories.values()
+            if cat.parent and cat.parent.name == name
+        ]
 
 
 def categories_from_list(cats):

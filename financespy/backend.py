@@ -14,7 +14,7 @@ class Backend:
         self._timef = time_factory.TimeFactory(self)
 
     def day(self, day, month, year):
-        return self._timef.month(month, year).day(day)
+        return self.timef.month(month, year).day(day)
 
     def month(self, month, year):
         return self._timef.month(month, year)

@@ -10,6 +10,7 @@ from financespy.categories import Categories
 from financespy.categories import categories_from_list
 from financespy.filesystem_backend import FilesystemBackend
 from financespy.xlsx_backend import XLSXBackend
+from financespy.memory_backend import MemoryBackend
 
 _current_year = datetime.datetime.now().year
 
@@ -28,7 +29,7 @@ def open_account(account_path=None):
     """
 
     if account_path is None:
-        #return open_default_account()
+        # return open_default_account()
         # TODO implement default account
         pass
 
@@ -48,6 +49,21 @@ def open_account(account_path=None):
         return open_gnucash(account_path)
 
     raise OpenAccountError(f"File [{account_path}] is not a valid Gnucash file")
+
+
+def memory_account(categories):
+    meta = AccountMetadata(
+        categories=categories,
+        currency="eur",
+        properties={},
+        name="memory_account",
+        backend_type="memory"
+    )
+
+    return Account(
+        backend=MemoryBackend(categories),
+        account_metadata=meta
+    )
 
 
 def open_folder(account_path):
@@ -153,6 +169,7 @@ class Account:
 
         self.backend = backend
         self.metadata = account_metadata
+        self.categories = account_metadata.categories
 
     def transactions(self, date_from, date_to):
         # TODO - if date_from > date_to - throw error
@@ -240,11 +257,11 @@ def transactions_per_range(backend, date_from, date_to):
     year_to = date_to.year
 
     def iterator():
-        for year in range(year_from, year_to+1):
-            for month in range(1,13):
+        for year in range(year_from, year_to + 1):
+            for month in range(1, 13):
                 dt = date(year=year, month=month, day=1)
                 if dt < date_from or dt > date_to:
-                        continue
+                    continue
 
                 for transaction in backend.month(year=year, month=month).records():
                     dt = transaction.date
