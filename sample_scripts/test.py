@@ -1,9 +1,8 @@
 from datetime import date
-from financespy.account import open_account
-from financespy.money import ZERO
-from financespy.dashboards import open_dashboard
-import sys
 
+from financespy.account import open_account
+from financespy.dashboards import open_dashboard
+from financespy.money import ZERO
 
 account = open_account("/home/danilo/Documents/Finances/accounts/savings")
 dashb = open_dashboard(

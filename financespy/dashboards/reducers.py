@@ -1,5 +1,5 @@
-import math
 import sys
+
 from financespy.money import ZERO, Money
 
 
@@ -82,6 +82,17 @@ def new_reducer(name):
     return Reducer(update, total)
 
 
+class CategoryReducer:
+    def __init__(self, category):
+        self.category = category
+
+    def add(self, value):
+        pass
+
+    def total(self):
+        return self.category
+
+
 class Reducer:
     def __init__(self, update, total):
         self.updatef = update
@@ -91,4 +102,4 @@ class Reducer:
         self.updatef(value)
 
     def total(self):
-        return self.totalf()
+        return self.totalf()._cents

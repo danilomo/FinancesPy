@@ -1,6 +1,6 @@
 from financespy.account import open_account
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories, total_iterator, records
+from tests.test_utils import get_categories, records, total_iterator
 
 _records = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe

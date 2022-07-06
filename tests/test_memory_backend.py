@@ -2,23 +2,26 @@ import pytest
 
 from financespy.memory_backend import MemoryBackend
 from financespy.transaction import parse_transaction
-from tests.test_utils import get_categories, dt, total_iterator, records
+from tests.test_utils import dt, get_categories, records, total_iterator
 
 
 def test_parse_string():
-    mb = MemoryBackend(get_categories())
-    mb.insert_record(dt(10, 2), "10, food")
+    backend = MemoryBackend(get_categories())
+    backend.insert_record(dt(10, 2), "10, food")
 
-    assert mb.records(dt(10, 2))[0].value._cents == 1000
-    assert mb.records(dt(10, 2))[0].description == "food"
+    assert backend.records(dt(10, 2))[0].value._cents == 1000
+    assert backend.records(dt(10, 2))[0].description == "food"
 
 
 def test_insert_transaction_object():
-    mb = MemoryBackend(get_categories())
-    mb.insert_record(dt(10, 2), parse_transaction("149, groceries", get_categories()))
+    backend = MemoryBackend(get_categories())
+    backend.insert_record(
+        dt(10, 2),
+        parse_transaction("149, groceries", get_categories())
+    )
 
-    assert mb.records(dt(10, 2))[0].value._cents == 14900
-    assert mb.records(dt(10, 2))[0].description == "groceries"
+    assert backend.records(dt(10, 2))[0].value._cents == 14900
+    assert backend.records(dt(10, 2))[0].description == "groceries"
 
 
 def test_invalid_type():
@@ -28,7 +31,7 @@ def test_invalid_type():
         mb.insert_record(dt(10, 2), (100, "food"))
 
 
-_records = """2019-09-04;20.0, withdrawal
+RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
 2019-09-06;49.28, aldi
 2019-09-08;17.05, müller
@@ -40,7 +43,7 @@ _records = """2019-09-04;20.0, withdrawal
 2019-09-21;50.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
-_records_filtered = """2019-09-04;20.0, withdrawal
+RECORDS_FILTERED = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
 2019-09-06;49.28, aldi
 2019-09-08;17.05, müller
@@ -59,10 +62,10 @@ def test_copy_from():
 
     not_lidl = [lambda t: not t.is_lidl]
 
-    for date, trans in records(cats, _records):
+    for date, trans in records(cats, RECORDS):
         mb_from.insert_record(date, trans)
 
-    for date, trans in records(cats, _records_filtered):
+    for date, trans in records(cats, RECORDS_FILTERED):
         mb_expected.insert_record(date, trans)
 
     mb_to.copy_from(mb_from, year=2019, filters=not_lidl)

@@ -1,14 +1,18 @@
-import gnucash
-from gnucash import GncNumeric, Split
-from financespy.categories import Category
-from financespy.categories import Categories
-from financespy.transaction import Transaction
 from datetime import datetime
+
+import gnucash
+from gnucash import (
+    QOF_COMPARE_EQUAL,
+    QOF_COMPARE_GTE,
+    QOF_COMPARE_LTE,
+    QOF_QUERY_AND,
+    GncNumeric,
+    Split,
+)
+
+from financespy.categories import Categories, Category
 from financespy.memory_backend import month_iterator_from_query
-
-from gnucash import QOF_QUERY_AND, QOF_QUERY_NAND
-
-from gnucash import QOF_COMPARE_LTE, QOF_COMPARE_EQUAL, QOF_COMPARE_GTE
+from financespy.transaction import Transaction
 
 # These constants come from enums from C implementation
 # see https://code.gnucash.org/docs/MAINT/group__Query.html

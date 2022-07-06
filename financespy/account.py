@@ -3,14 +3,13 @@ import json
 import os
 import re
 from dataclasses import dataclass
-from pathlib import Path
 from datetime import date
+from pathlib import Path
 
-from financespy.categories import Categories
-from financespy.categories import categories_from_list
+from financespy.categories import Categories, categories_from_list
 from financespy.filesystem_backend import FilesystemBackend
-from financespy.xlsx_backend import XLSXBackend
 from financespy.memory_backend import MemoryBackend
+from financespy.xlsx_backend import XLSXBackend
 
 _current_year = datetime.datetime.now().year
 
@@ -22,10 +21,13 @@ class OpenAccountError(Exception):
 
 def open_account(account_path=None):
     """
-    Creates an Account object from a given operating system path. The path can point to any supported storage: csv files, Excel spreadsheets,
-    gnucash file, etc. Account metadata file stored as JSON is expected to be present, otherwise the method will throw an exception.
+    Creates an Account object from a given operating system path.
+    The path can point to any supported storage: csv files, Excel spreadsheets,
+    gnucash file, etc. Account metadata file stored as JSON is expected to be present,
+    otherwise the method will throw an exception.
 
-    Please read the documentation for understanding the organization of files for each backend type and account metadata.
+    Please read the documentation for understanding the organization
+    of files for each backend type and account metadata.
     """
 
     if account_path is None:
@@ -57,13 +59,10 @@ def memory_account(categories):
         currency="eur",
         properties={},
         name="memory_account",
-        backend_type="memory"
+        backend_type="memory",
     )
 
-    return Account(
-        backend=MemoryBackend(categories),
-        account_metadata=meta
-    )
+    return Account(backend=MemoryBackend(categories), account_metadata=meta)
 
 
 def open_folder(account_path):
@@ -116,6 +115,7 @@ def read_metadata(account_json):
 
 def open_gnucash(gnucash_file):
     from gnucash import Session
+
     from financespy import gnucash_backend
     from financespy.gnucash_backend import GnucashBackend
 
@@ -154,12 +154,16 @@ class AccountMetadata:
 
 class Account:
     """
-    Provides access to a collection of financial transaction stored in some medium (gnucash file,
-    relational database, Excel spreadsheet, etc.). It exports query methods for retrieving transactions
-    for a given time interval (a day, a month, a year, etc.), and also a method for updating the storage (if supported).
+    Provides access to a collection of financial transaction
+    stored in some medium (gnucash file, relational database,
+    Excel spreadsheet, etc.). It exports query methods for retrieving
+    transactions for a given time interval (a day, a month, a year, etc.),
+    and also a method for updating the storage (if supported).
 
-    This class just delegates the operations to the specific backend that is given on the constructor. However, the usage of this
-    class should be encouraged in conjunction with the "open_account" function that is able to create an account object
+    This class just delegates the operations to the specific backend
+    that is given on the constructor. However, the usage of this
+    class should be encouraged in conjunction with the "open_account"
+    function that is able to create an account object
     with the correcty backend and metadata already configured.
     """
 
@@ -178,7 +182,7 @@ class Account:
         # It can be more efficient than our default implementation
         try:
             return self.backend.transactions(date_from, date_to)
-        except:
+        except AttributeError:
             pass
 
         return transactions_per_range(self.backend, date_from, date_to)
@@ -199,21 +203,21 @@ class Account:
 
         return self.backend.month(month, year)
 
-    def records(self, date):
+    def records(self, date_):
         """
         Give all transactions for a specific date object. This can be any object that has the following attributes:
         year, day and month. Usually it should be a datetime.date object, but a duck-typed object also can be used.
         """
 
-        return self.backend.records(date)
+        return self.backend.records(date_)
 
-    def insert_record(self, date, transaction):
+    def insert_record(self, date_, transaction):
         """
         Insert a financial transaction at a specific date. Only the day/month/year values are important, the specific hour/minute
         are not considered.
         """
 
-        self.backend.insert_record(date, transaction)
+        self.backend.insert_record(date_, transaction)
 
     def copy_year(self, account, year, tags=[], filters=[]):
         """Copies all transactions for an entire year from a source account

@@ -1,94 +1,134 @@
-from dataclasses import dataclass, field
-from typing import List, Tuple
-import ast
-import _ast
+from dataclasses import dataclass
+from typing import List
+
+
+def value(state):
+    state.push(state.transaction.value._cents)
+
+
+def is_category(state):
+    category_name = state.pop()
+    category = state.categories.category(category_name)
+
+    state.push(state.transaction.matches_category(category))
+
+
+def and_(state):
+    val1 = state.pop()
+    val2 = state.pop()
+
+    state.push(val1 and val2)
+
+
+def or_(state):
+    val1 = state.pop()
+    val2 = state.pop()
+
+    state.push(val1 or val2)
+
+
+def equals(state):
+    val1 = state.pop()
+    val2 = state.pop()
+
+    state.push(val1 == val2)
+
+
+FUNCTIONS = {
+    "value": value,
+    "=": equals,
+    "is_category": is_category,
+    "and": and_,
+    "or": or_
+}
+
+
+class State:
+    def __init__(self, transaction, categories, parameters):
+        self.transaction = transaction
+        self.categories = categories
+        self.parameters = parameters
+        self.stack = []
+
+    def pop(self):
+        return self.stack.pop()
+
+    def push(self, element):
+        self.stack.append(element)
+
+
+def str_to_token(string):
+    # check if it is a function
+    if string in FUNCTIONS:
+        return FUNCTIONS[string]
+
+    if string[0] == "$":
+        def push_parameter(state):
+            value = state.parameters[string[:1]]
+
+    # try to parse as a number
+    try:
+        quantity = int(float(string) * 100)
+
+        def push_elem(state):
+            state.push(quantity)
+        return push_elem
+    except ValueError:
+        pass
+
+    # ... otherwise add as a category name
+    return lambda state: state.push(string)
+
+
+def apply_filter(filter_expr, state):
+    for token in filter_expr:
+        token(state)
+
+    return state.stack.pop()
 
 
 @dataclass
 class Formula:
-    columns: List[Tuple[str]]
-    generator_expr: str
-    variable: str
-    filter_expr: str
+    """
+    This class is like a Python list generator for transaction records:
+
+    [transaction for transaction in all categories in self.categories,
+    that are not in self.categories_exclude if filter_expr(transaction)
+    is valid]
+
+    """
+    columns: List[str]
+    categories: List[str]
+    categories_exclude: List[str]
+    filter_string: str
+
+    def category_list(self, categories, params):
+        include_list = []
+        for col in self.categories:
+            include_list += categories.categories(col.strip(), params)
+
+        exclude_list = []
+        for col in self.categories_exclude:
+            exclude_list += [
+                cat.name for cat in categories.categories(col, params)]
+
+        exclude_set = set(exclude_list)
+        return [cat for cat in include_list if cat.name not in exclude_set]
+
+    def predicate(self, categories, parameters={}):
+        def new_predicate(transaction):
+            state = State(transaction, categories, parameters)
+
+            return apply_filter(self.filter_expr, state)
+
+        return new_predicate
 
     @property
-    def filter_function(self):
-        return eval(self.filter_expr)
-
-    def apply_parameters(self, params):
-        if not params:
-            return self
-
-        gen_exp = self.generator_expr
-
-        for k, v in params.items():
-            gen_exp = gen_exp.replace(f"params.{k}", v)
-
-        return Formula(
-            columns=self.columns,
-            generator_expr=gen_exp,
-            variable=self.variable,
-            filter_expr=self.filter_expr,
-        )
+    def filter_expr(self):
+        return [
+            str_to_token(element.strip())
+            for element in self.filter_string.split(" ")
+        ]
 
 
-def parse_value(val):
-    if type(val) is _ast.Name:
-        return (val.id,)
-
-    if type(val) is _ast.Call:
-        return val.func.id, val.args[0].id
-
-
-def parse_columns(expr_ast):
-    return [parse_value(val) for val in expr_ast.body.elt.elts]
-
-
-def parse_variable(expr_ast):
-    return expr_ast.body.generators[0].target.id
-
-
-def parse_generator(expr_ast):
-    return expr_ast.body.generators[0].iter.id
-
-
-def parse_filter_expr(expr_ast):
-    return None
-
-
-def parse_formula(formula):
-    values, remainder = formula.split("for")
-    formula = f"( ({values}) for {remainder} )"
-    expr_ast = ast.parse(formula, mode="eval")
-
-    return Formula(
-        columns=parse_columns(expr_ast),
-        generator_expr=parse_generator(expr_ast),
-        variable=parse_variable(expr_ast),
-        filter_expr=parse_filter_expr(expr_ast),
-    )
-
-
-def default_formula(chart):
-    return parse_formula(chart.formula_str)
-
-
-def parse_budget(chart):
-    columns = [("cat",), ("sum",)]
-    generator = ",".join(chart.properties["budgets"].keys())
-    variable = "cat"
-    filter_expr = ""
-
-    return Formula(
-        columns=columns,
-        generator_expr=f"[{generator}]",
-        variable=variable,
-        filter_expr=filter_expr,
-    )
-
-
-formulas = {"budget": parse_budget, "treemap": lambda c: None}
-
-
-def get_formula(chart):
-    return formulas.get(chart.chart_type, default_formula)
+EMPTY_FORMULA = Formula([], [], [], "")

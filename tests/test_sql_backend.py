@@ -7,14 +7,17 @@ from sqlalchemy.orm import sessionmaker
 
 import financespy.account as account
 from financespy.memory_backend import MemoryBackend
-from financespy.sql_backend import SQLBackend
-from financespy.sql_backend import db_object
-from financespy.sql_backend import read_account_metadata
-from financespy.sql_backend import transaction_class, account_class
+from financespy.sql_backend import (
+    SQLBackend,
+    account_class,
+    db_object,
+    read_account_metadata,
+    transaction_class,
+)
 from financespy.transaction import parse_transaction
 from tests.test_utils import get_categories_as_list
 
-records_ = """2019-09-04;20.0, withdrawal
+RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
 2019-09-06;49.28, aldi
 2019-09-08;17.05, müller
@@ -39,7 +42,7 @@ def parse_date(dt):
 
 
 def records(cats):
-    recs = (tuple(line.split(";")) for line in records_.split("\n"))
+    recs = (tuple(line.split(";")) for line in RECORDS.split("\n"))
     return [(parse_date(date), parse_transaction(trans, cats)) for date, trans in recs]
 
 
@@ -50,28 +53,35 @@ def open_sql_account():
     session = session_factory()
 
     test_account = Account(
-        name="savings", currency="eur", categories=json.dumps(categories), user_id=1
+        name="savings",
+        currency="eur",
+        categories=json.dumps(categories),
+        user_id=1
     )
     session.add(test_account)
     session.commit()
 
     account_data = read_account_metadata(session, 1, Account)
 
-    backend = SQLBackend(session=session, account_id=1, transaction_class=Transaction)
+    backend = SQLBackend(session=session, account_id=1,
+                         transaction_class=Transaction)
 
     return account.Account(backend, account_data)
 
 
 def total_iterator(iterator):
-    weeks = [sum(t.value for t in element.records()) for element in iterator]
+    weeks = [
+        sum(t.value for t in element.records())
+        for element in iterator
+    ]
 
     return weeks
 
 
 def test_month_iterator():
-    account = open_sql_account()
+    sql_acc = open_sql_account()
 
-    backend = account.backend
+    backend = sql_acc.backend
     cats = backend.categories
     memory_backend = MemoryBackend(cats)
 

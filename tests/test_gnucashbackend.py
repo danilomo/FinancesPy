@@ -2,12 +2,11 @@ import os
 from datetime import datetime
 
 try:
-    from gnucash import Session
+    pass
+
     from financespy.account import open_account
-    from financespy.gnucash_backend import GnucashBackend
-    from financespy.gnucash_backend import categories_from
-    from financespy.transaction import parse_transaction
     from financespy.memory_backend import MemoryBackend
+    from financespy.transaction import parse_transaction
 
     _gnucash_module_loaded = True
 except:

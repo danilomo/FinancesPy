@@ -32,7 +32,6 @@ class Backend:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Empty exit method for allowing any backend to be used in a with block"""
-        pass
 
 
 class CompositeBackend:

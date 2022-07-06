@@ -1,6 +1,6 @@
 import datetime
 
-months = [
+MONTHS = [
     "january",
     "february",
     "march",
@@ -15,7 +15,7 @@ months = [
     "december",
 ]
 
-_months_short = [
+MONTHS_SHORT = [
     "jan",
     "feb",
     "mar",
@@ -30,7 +30,7 @@ _months_short = [
     "dec",
 ]
 
-_months_indexes = dict(zip(_months_short, range(1, 13)))
+_months_indexes = dict(zip(MONTHS_SHORT, range(1, 13)))
 
 
 def parse_month(m):

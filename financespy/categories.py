@@ -34,16 +34,27 @@ class Categories:
     def all(self):
         return list(self._categories.keys())
 
-    def categories(self, expression):
-
+    def categories(self, expression, params={}):
         if expression[0] == "[":
-            cats = expression[1:-1].split(",")
+            cats = [cat.strip() for cat in expression[1:-1].split(",")]
             return [self.category(cat) for cat in cats]
 
-        if expression == "main_categories" or expression == "expenses":
+        if expression in ["main_categories", "expenses"]:
             return self.children(self.category("expenses"))
 
-        name, prop = expression.split(".")
+        split = expression.split(".")
+
+        if len(split) == 1:
+            name = expression
+            if name[0] == "$":
+                name = params.get(name[1:], name)
+
+            return [self.category(name)]
+
+        name, prop = split
+
+        if name[0] == "$":
+            name = params.get(name[1:], name)
 
         if prop == "children":
             return [

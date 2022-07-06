@@ -1,8 +1,7 @@
 from openpyxl import load_workbook
 
 from financespy.backend import Backend
-from financespy.transaction import Transaction
-from financespy.transaction import parse_transaction
+from financespy.transaction import Transaction, parse_transaction
 
 
 class XLSXBackend(Backend):

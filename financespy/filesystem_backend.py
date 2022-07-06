@@ -2,21 +2,7 @@ import os
 
 from financespy.backend import Backend
 from financespy.transaction import parse_transaction
-
-_months = [
-    "jan",
-    "feb",
-    "mar",
-    "apr",
-    "may",
-    "jun",
-    "jul",
-    "aug",
-    "sep",
-    "oct",
-    "nov",
-    "dec",
-]
+from financespy.time_factory import MONTHS_SHORT
 
 
 class FilesystemBackend(Backend):
@@ -43,4 +29,4 @@ class FilesystemBackend(Backend):
         return self.month_folder(date) + str(date.day) + ".csv"
 
     def month_folder(self, date):
-        return self.folder + str(date.year) + "/" + _months[date.month - 1] + "/"
+        return self.folder + str(date.year) + "/" + MONTHS_SHORT[date.month - 1] + "/"

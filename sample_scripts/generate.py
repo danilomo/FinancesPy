@@ -1,9 +1,10 @@
-from datetime import date
-from financespy.account import open_account
-from financespy.transaction import Transaction
-from financespy.money import Money
-import sys
 import random
+import sys
+from datetime import date
+
+from financespy.account import open_account
+from financespy.money import Money
+from financespy.transaction import Transaction
 
 account = open_account("/home/danilo/Documents/Finances/accounts/" + sys.argv[1])
 

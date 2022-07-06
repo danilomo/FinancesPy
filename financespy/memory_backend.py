@@ -1,11 +1,9 @@
 import collections
 from datetime import datetime
 
-from financespy.backend import Backend
-from financespy.backend import CompositeBackend
+from financespy.backend import Backend, CompositeBackend
 from financespy.time_factory import parse_month
-from financespy.transaction import Transaction
-from financespy.transaction import parse_transaction
+from financespy.transaction import Transaction, parse_transaction
 
 
 class MemoryBackend(Backend):

@@ -6,19 +6,8 @@ def get_categories():
     default_categories = [
         {
             "expenses": [
-                {
-                    "others": [
-                        "uncategorized",
-                        "withdrawal",
-                        "misc"
-                    ]
-                },
-                {
-                    "church": [
-                        "tithes",
-                        "offering"
-                    ]
-                },
+                {"others": ["uncategorized", "withdrawal", "misc"]},
+                {"church": ["tithes", "offering"]},
                 {
                     "food": [
                         {
@@ -36,7 +25,7 @@ def get_categories():
                                 "nahkauf",
                                 "bakery",
                                 "backery",
-                                "asia"
+                                "asia",
                             ]
                         },
                         "restaurant",
@@ -46,28 +35,12 @@ def get_categories():
                         "icecream",
                         "mc",
                         "sushi",
-                        "bk"
+                        "bk",
                     ]
                 },
-                {
-                    "utilities": [
-                        "internet",
-                        "electricity",
-                        "cellphone_balance"
-                    ]
-                },
-                {
-                    "travel": [
-                        "plane_ticket",
-                        "hotel_reservation",
-                        "train_ticket"
-                    ]
-                },
-                {
-                    "tax": [
-                        "tv_tax"
-                    ]
-                },
+                {"utilities": ["internet", "electricity", "cellphone_balance"]},
+                {"travel": ["plane_ticket", "hotel_reservation", "train_ticket"]},
+                {"tax": ["tv_tax"]},
                 {
                     "shopping": [
                         "saturn",
@@ -87,22 +60,16 @@ def get_categories():
                         "action",
                         "real",
                         "clothes",
-                        "moemax"
+                        "moemax",
                     ]
                 },
                 {
                     "education": [
-                        {
-                            "course_fee": [
-                                "german_course",
-                                "inlingua",
-                                "vhs"
-                            ]
-                        },
+                        {"course_fee": ["german_course", "inlingua", "vhs"]},
                         "textbook",
                         "school_supplies",
                         "magazine",
-                        "book"
+                        "book",
                     ]
                 },
                 {
@@ -115,7 +82,7 @@ def get_categories():
                         "douglas",
                         "hairdresser",
                         "nails",
-                        "müller"
+                        "müller",
                     ]
                 },
                 {
@@ -123,9 +90,9 @@ def get_categories():
                         "monthly_ticket",
                         "day_ticket",
                         "single_ticket",
-                        "bus_ticket"
+                        "bus_ticket",
                     ]
-                }
+                },
             ]
         }
     ]

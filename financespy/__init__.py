@@ -1,3 +1,5 @@
+# pylint: disable-all
+# flake8: noqa
 from financespy.account import Account
 from financespy.charting import PieChart
 from financespy.charting import PieSection

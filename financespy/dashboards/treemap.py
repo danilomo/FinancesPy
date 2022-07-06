@@ -1,8 +1,8 @@
 from financespy.money import ZERO
 
 
-def tree_map(formula, transactions, account):
-    data, parents = tree_map_aux(account.backend.categories, transactions)
+def tree_map(formula, transactions, categories, params):
+    data, parents = tree_map_aux(categories, transactions)
 
     return [{"data": data, "parents": parents}]
 
@@ -29,7 +29,6 @@ def tree_map_aux(categories, transactions):
     rows = []
 
     def walk(cat, max_depth=3, level=0):
-
         children = categories.children(cat)
 
         if not children or level == max_depth:
