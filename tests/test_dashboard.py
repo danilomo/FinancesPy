@@ -1,5 +1,3 @@
-"67""Tests chart and dashboard related features"""
-
 import random
 from datetime import date
 
@@ -168,8 +166,6 @@ def test_budget():
 
 
 def test_tree():
-    "Tests treemap chart"
-
     template = """
     template:
       rows:

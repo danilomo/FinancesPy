@@ -76,7 +76,7 @@ def summary_function(formula, transactions, categories, params):
 
 
 def pie_chart_data(formula, transactions, categories, params):
-    "Chart function for Pie charts, filter empty categories by default"
+    """Chart function for Pie charts, filter empty categories by default"""
 
     rows = summary_function(formula, transactions, categories, params)
 
@@ -84,8 +84,6 @@ def pie_chart_data(formula, transactions, categories, params):
 
 
 def budget_chart_formula(chart):
-    "Returns a Formula object for a budget chart."
-
     return Formula(
         columns=["cat", "sum"],
         categories=[key for key, val in chart.properties["budgets"].items()],

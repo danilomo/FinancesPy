@@ -27,7 +27,13 @@ class Categories:
         self._categories = categories
         self._default = default_category
 
-    def category(self, category):
+    def category(self, category, params={}):
+        if category == "main_categories":
+            category = "expenses"
+
+        if category[0] == "$":
+            category = params.get(category[1:], category)
+
         return self._categories.get(category, self._default)
 
     @property

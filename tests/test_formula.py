@@ -1,5 +1,3 @@
-"Tests formulas"
-
 from financespy.money import Money
 from financespy.account import MemoryBackend
 from financespy.dashboards import Formula
@@ -43,14 +41,14 @@ def test_formula():
 
     def all_records_2019():
         for week in account.month("sep", 2019).weeks():
-            for t in week.records():
-                if not predicate(t):
+            for time in week.records():
+                if not predicate(time):
                     continue
 
-                yield t
+                yield time
 
-    for t in all_records_2019():
-        assert t.value == Money(50) or t.is_lidl
+    for record in all_records_2019():
+        assert record.value == Money(50) or record.is_lidl
 
 
 def test_formula_with_parameter():
@@ -66,11 +64,11 @@ def test_formula_with_parameter():
 
     def all_records_2019():
         for week in account.month("sep", 2019).weeks():
-            for t in week.records():
-                if not predicate(t):
+            for time in week.records():
+                if not predicate(time):
                     continue
 
-                yield t
+                yield time
 
-    for t in all_records_2019():
-        assert t.value == Money(50) or t.is_lidl
+    for record in all_records_2019():
+        assert record.value == Money(50) or record.is_lidl

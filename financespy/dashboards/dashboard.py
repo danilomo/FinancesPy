@@ -150,7 +150,7 @@ class Dashboard:
 
         return charts
 
-    def chart_data(self, transactions, account, params=None):
+    def chart_data(self, transactions, account, params={}):
         """
         Returns the numerical data needed to plot every chart of the dashboard
         """

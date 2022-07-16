@@ -102,6 +102,9 @@ class Formula:
     categories_exclude: List[str]
     filter_string: str
 
+    def category_list_flat(self, categories, params):
+        return [categories.category(cat, params) for cat in self.categories]
+
     def category_list(self, categories, params):
         include_list = []
         for col in self.categories:
