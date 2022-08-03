@@ -16,8 +16,7 @@ def test_parse_string():
 def test_insert_transaction_object():
     backend = MemoryBackend(get_categories())
     backend.insert_record(
-        dt(10, 2),
-        parse_transaction("149, groceries", get_categories())
+        dt(10, 2), parse_transaction("149, groceries", get_categories())
     )
 
     assert backend.records(dt(10, 2))[0].value._cents == 14900

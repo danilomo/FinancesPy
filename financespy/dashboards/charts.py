@@ -93,11 +93,7 @@ def budget_chart_formula(chart):
 
 
 # Maps a chart type to a chart function
-functions = defaultdict(
-    lambda: summary_function,
-    treemap=tree_map,
-    pie=pie_chart_data
-)
+functions = defaultdict(lambda: summary_function, treemap=tree_map, pie=pie_chart_data)
 
 # Maps a chart object to its corresponding Formula object
 chart_to_formula = defaultdict(
@@ -121,7 +117,7 @@ class Chart:
     properties: dict = field(default_factory=dict)
 
     def chart_data(self, transactions, account, params):
-        """"
+        """ "
         Processes a stream of transaction and gives output chart
         data to be plotted
         """

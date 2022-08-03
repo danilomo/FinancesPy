@@ -30,8 +30,7 @@ def load_dashboard(value):
 def get_list(dict_, key, default_val=()):
     """Converts a string field from a dictionary into a list"""
 
-    result = [elem.strip() for elem in dict_.get(
-        key, "").split(",") if elem.strip()]
+    result = [elem.strip() for elem in dict_.get(key, "").split(",") if elem.strip()]
 
     if not result:
         return default_val
@@ -45,9 +44,11 @@ def parse_map_as_dashboard(obj):
     """
 
     template = obj.get("template", {})
+    print("Template", template)
 
     rows = []
     parameters = []
+    account = template.get("account", "")
 
     for row in template.get("rows", []):
         charts = []
@@ -55,20 +56,9 @@ def parse_map_as_dashboard(obj):
         for chart in row.get("charts", []):
             formula_dict = chart.get("formula", {})
             formula = Formula(
-                columns=get_list(
-                    formula_dict,
-                    "columns",
-                    ["sum", "cat"]
-                ),
-                categories=get_list(
-                    formula_dict,
-                    "categories",
-                    ["main_categories"]
-                ),
-                categories_exclude=get_list(
-                    formula_dict,
-                    "categories_exclude"
-                ),
+                columns=get_list(formula_dict, "columns", ["sum", "cat"]),
+                categories=get_list(formula_dict, "categories", ["main_categories"]),
+                categories_exclude=get_list(formula_dict, "categories_exclude"),
                 filter_string=formula_dict.get("filter_expr", ""),
             )
             charts.append(
@@ -85,16 +75,13 @@ def parse_map_as_dashboard(obj):
 
         rows.append(Row(charts))
 
-    for param in template.get("parameters", []):
-        properties = param.get("properties", {})
+    for name, param in template.get("parameters", {}).items():
         param_type = param.get("type", "")
-        name = param.get("name", "")
+        default = param.get("default", "")
 
-        parameters.append(
-            Parameter(name=name, param_type=param_type, properties=properties)
-        )
+        parameters.append(Parameter(name=name, param_type=param_type, default=default))
 
-    return Dashboard(rows, parameters)
+    return Dashboard(rows, parameters, account)
 
 
 @dataclass
@@ -103,6 +90,7 @@ class Row:
     Represents a collection of charts that should
     be displayed in the same row
     """
+
     charts: List[Chart]
 
     @property
@@ -116,16 +104,18 @@ class Parameter:
     """
     Defines a parameter belonging to a chart.
     """
+
     name: str = ""
     param_type: str = ""
-    properties: dict = field(default_factory=dict)
+    default: str = ""
 
     def to_dict(self):
         "Returns a map structure describing the parameter"
+
         return {
             "name": self.name,
             "type": self.param_type,
-            "properties": self.properties,
+            "default": self.default,
         }
 
 
@@ -135,8 +125,10 @@ class Dashboard:
     Defines a custom dashboard, composed of a series of rows,
     each row containing one or more charts
     """
+
     rows: List[Row]
     parameters: List[Parameter]
+    account: str = ""
 
     @property
     def charts(self):

@@ -1,13 +1,25 @@
 from financespy.money import ZERO
 
 
+def transaction_in_list(transaction, categories):
+    for cat in categories:
+        if transaction.matches_category(cat):
+            return True
+
+    return False
+
+
 def tree_map(formula, transactions, categories, params):
     category_list = formula.category_list_flat(categories, params)
 
     if not category_list:
         category_list = [categories.category("expenses")]
 
-    data, parents = tree_map_aux(category_list, categories, transactions)
+    data, parents = tree_map_aux(
+        category_list,
+        categories,
+        [trans for trans in transactions if transaction_in_list(trans, category_list)],
+    )
 
     return [{"data": data, "parents": parents}]
 
@@ -31,17 +43,6 @@ def map_row(row, transactions):
 
 
 def tree_map_aux(category_list, categories, transactions):
-    common_parent = None
-    if len(category_list) > 1:
-        parents = set()
-        for cat in category_list:
-            parents.add(cat.parent.name)
-        
-        if len(parents) > 1:
-            raise Exception(f"Categories from list {category_list} do not share the same parent category")
-
-        common_parent = next(parents.__iter__() )
-
     rows = []
 
     def walk(cat, max_depth=3, level=0):
@@ -56,8 +57,7 @@ def tree_map_aux(category_list, categories, transactions):
         for child in children:
             walk(child, max_depth, level + 1)
 
-    for category in category_list:
-        walk(category, max_depth=2)
+    walk(categories.category("expenses"), max_depth=2)
 
     rows = [map_row(row, transactions) for row in rows]
 
@@ -79,10 +79,10 @@ def tree_map_aux(category_list, categories, transactions):
 
     print(data, parents)
 
-    return ("name,parent,value\n"
-            + (f"{common_parent},,\n" if common_parent else "")
-            + "\n".join(data)
-            ), parents
+    return (
+        "name,parent,value\n"
+        + "\n".join(data)
+    ), parents
 
 
 def process_result(result):

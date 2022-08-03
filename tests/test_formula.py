@@ -35,7 +35,7 @@ def test_formula():
         columns=[],
         categories="rewe, aldi",
         categories_exclude=[],
-        filter_string="value 50 = lidl is_category or"
+        filter_string="value 50 = lidl is_category or",
     )
     predicate = formula.predicate(account.categories)
 
@@ -58,7 +58,7 @@ def test_formula_with_parameter():
         columns=[],
         categories="rewe, aldi",
         categories_exclude=[],
-        filter_string="value 50 = lidl is_category or"
+        filter_string="value 50 = lidl is_category or",
     )
     predicate = formula.predicate(account.categories)
 

@@ -39,7 +39,7 @@ FUNCTIONS = {
     "=": equals,
     "is_category": is_category,
     "and": and_,
-    "or": or_
+    "or": or_,
 }
 
 
@@ -63,6 +63,7 @@ def str_to_token(string):
         return FUNCTIONS[string]
 
     if string[0] == "$":
+
         def push_parameter(state):
             value = state.parameters[string[:1]]
 
@@ -72,6 +73,7 @@ def str_to_token(string):
 
         def push_elem(state):
             state.push(quantity)
+
         return push_elem
     except ValueError:
         pass
@@ -97,6 +99,7 @@ class Formula:
     is valid]
 
     """
+
     columns: List[str]
     categories: List[str]
     categories_exclude: List[str]
@@ -112,8 +115,7 @@ class Formula:
 
         exclude_list = []
         for col in self.categories_exclude:
-            exclude_list += [
-                cat.name for cat in categories.categories(col, params)]
+            exclude_list += [cat.name for cat in categories.categories(col, params)]
 
         exclude_set = set(exclude_list)
         return [cat for cat in include_list if cat.name not in exclude_set]
@@ -129,8 +131,7 @@ class Formula:
     @property
     def filter_expr(self):
         return [
-            str_to_token(element.strip())
-            for element in self.filter_string.split(" ")
+            str_to_token(element.strip()) for element in self.filter_string.split(" ")
         ]
 
 

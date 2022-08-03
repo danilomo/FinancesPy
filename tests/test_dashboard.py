@@ -58,9 +58,7 @@ def test_summary():
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(account.transactions(
-        date_from=date_from, date_to=date_to)
-    )
+    transactions = list(account.transactions(date_from=date_from, date_to=date_to))
 
     totals = {}
     cats = account.categories.categories("main_categories")
@@ -77,8 +75,7 @@ def test_summary():
     for total, cat_name in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert set((k, v) for k, v in totals.items()
-               ) == set(totals_from_chart.items())
+    assert set((k, v) for k, v in totals.items()) == set(totals_from_chart.items())
 
 
 def test_pie():
@@ -98,8 +95,7 @@ def test_pie():
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(account.transactions(
-        date_from=date_from, date_to=date_to))
+    transactions = list(account.transactions(date_from=date_from, date_to=date_to))
 
     totals = {}
     cats = account.categories.categories("main_categories")
@@ -141,8 +137,7 @@ def test_budget():
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(account.transactions(
-        date_from=date_from, date_to=date_to))
+    transactions = list(account.transactions(date_from=date_from, date_to=date_to))
 
     totals = {}
     cats = account.categories.categories("[food, shopping, body_and_hygiene]")
@@ -159,10 +154,7 @@ def test_budget():
     for cat_name, total in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert (
-        set((k, v) for k, v in totals.items())
-        == set(totals_from_chart.items())
-    )
+    assert set((k, v) for k, v in totals.items()) == set(totals_from_chart.items())
 
 
 def test_tree():
@@ -180,8 +172,7 @@ def test_tree():
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(account.transactions(
-        date_from=date_from, date_to=date_to))
+    transactions = list(account.transactions(date_from=date_from, date_to=date_to))
 
     data = dashboard.chart_data(transactions, account)
     print(data)
@@ -201,15 +192,14 @@ def aux_test_parameters(param_val):
     Creates a random account and load a summary dashboard with a
     supplied parameter map
     """
-
     template = """
     template:
         parameters:
-            - type: category
-              name: selected_cat
-              label: "Selected category"
-              default: expenses
-
+            selected_cat:
+                type: category
+                name: selected_cat
+                label: "Selected category"
+                default: expenses
         rows:
             - charts:
                 - type: pie
@@ -224,12 +214,7 @@ def aux_test_parameters(param_val):
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(
-        account.transactions(
-            date_from=date_from,
-            date_to=date_to
-        )
-    )
+    transactions = list(account.transactions(date_from=date_from, date_to=date_to))
 
     totals = {}
     cats = account.categories.categories(f"{param_val}.children")
@@ -241,8 +226,7 @@ def aux_test_parameters(param_val):
                 totals[cat.name] += t.value
                 break
 
-    data = dashboard.chart_data(transactions, account, {
-                                "selected_cat": param_val})
+    data = dashboard.chart_data(transactions, account, {"selected_cat": param_val})
 
     totals_from_chart = {}
     for total, cat_name in data[0]["data"]:

@@ -63,13 +63,7 @@ def test_insert_record():
 
     mar_expected = [("aldi", 1000)]
 
-    assert jan_expected == list_records(
-        backend_,
-        dt(day=3, month=1)
-    )
-    assert mar_expected == list_records(
-        backend_,
-        dt(day=30, month=3)
-    )
+    assert jan_expected == list_records(backend_, dt(day=3, month=1))
+    assert mar_expected == list_records(backend_, dt(day=30, month=3))
 
     shutil.rmtree("./finances_copy")

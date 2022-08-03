@@ -26,6 +26,7 @@ class Categories:
     def __init__(self, categories, default_category):
         self._categories = categories
         self._default = default_category
+        self._dict_representation = None
 
     def category(self, category, params={}):
         if category == "main_categories":
@@ -35,6 +36,9 @@ class Categories:
             category = params.get(category[1:], category)
 
         return self._categories.get(category, self._default)
+
+    def to_dict(self):
+        return self._dict_representation
 
     @property
     def all(self):
@@ -98,4 +102,7 @@ def categories_from_list(cats):
 
     catmap = {}
     aux(catmap, cats, None)
-    return Categories(catmap, catmap["uncategorized"])
+    categories = Categories(catmap, catmap["uncategorized"])
+    categories._dict_representation = cats
+
+    return categories
