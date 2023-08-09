@@ -8,10 +8,11 @@ class ParseTransactionError(Exception):
 
 
 class Transaction:
-    def __init__(self, value, description, categories):
+    def __init__(self, value, description, categories, id = None):
         self.value = money.Money(value) if type(value) != Money else value
         self.categories = categories
         self.description = description
+        self.id = id
 
     def as_expense(self):
         new_value = -1 * self.value.abs()
@@ -58,6 +59,9 @@ class Transaction:
                 "month": self.date.month,
                 "year": self.date.year,
             }
+
+        if self.id is not None:
+            result["id"] = self.id
 
         return result
 
