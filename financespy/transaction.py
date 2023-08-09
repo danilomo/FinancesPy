@@ -8,7 +8,7 @@ class ParseTransactionError(Exception):
 
 
 class Transaction:
-    def __init__(self, value, description, categories, id = None):
+    def __init__(self, value, description, categories, id=None):
         self.value = money.Money(value) if type(value) != Money else value
         self.categories = categories
         self.description = description

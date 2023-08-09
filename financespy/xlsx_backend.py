@@ -16,7 +16,7 @@ class XLSXBackend(Backend):
         self._workbooks = {}
 
     def _filename(self, date):
-        return self.folder + "/" + str(date.year) + ".xlsx"
+        return self.folder / f"{str(date.year)}.xlsx"
 
     def _get_workbook(self, date):
         if date.year not in self._workbooks:
@@ -32,7 +32,7 @@ class XLSXBackend(Backend):
                 parse_transaction(
                     str(row[2].value) + "," + str(row[1].value), self.categories
                 ),
-                index
+                index,
             )
             for row, index in list(rows)[1:]
             if row[0].value and date.day == int(row[0].value)
@@ -50,11 +50,20 @@ class XLSXBackend(Backend):
 
         workbook = self._get_workbook(date)
         sheet = workbook.worksheets[date.month - 1]
-
         sheet.append(
-            [date.day, str(transaction.main_category()), str(transaction.value), transaction.description]
+            [
+                date.day,
+                str(transaction.main_category()),
+                str(transaction.value),
+                transaction.description,
+            ]
         )
-        sheet.sort()
+        sheet_copy = [[c.value for c in r] for r in sheet][1:]
+        sheet_copy.sort(key=lambda row: row[0])
+
+        for i in range(0, len(sheet_copy)):
+            for j in range(0, len(sheet_copy[i])):
+                sheet.cell(i + 2, j + 1).value = sheet_copy[i][j]
 
         workbook.save(self._filename(date))
 
@@ -63,5 +72,9 @@ class XLSXBackend(Backend):
         workbook = self._get_workbook(date)
         sheet = workbook.worksheets[date.month - 1]
 
-        sheet[transaction.id] = [date.day, str(transaction.main_category()), str(transaction.value),
-                                 transaction.description]
+        sheet[transaction.id] = [
+            date.day,
+            str(transaction.main_category()),
+            str(transaction.value),
+            transaction.description,
+        ]

@@ -41,9 +41,10 @@ def test_list_records():
     assert not list(backend_.records(dt(day=1, month=12)))
 
 
-def test_insert_record():
-    shutil.copytree("./tests/resources/finances", "./finances_copy")
-    backend_ = backend("./finances_copy")
+def test_insert_record(tmp_path):
+    print(tmp_path)
+    shutil.copytree("./tests/resources/finances", tmp_path / "finances")
+    backend_ = backend(tmp_path / "finances")
 
     backend_.insert_record(
         transaction=parse_transaction("1000, aldi", get_categories()),
@@ -65,5 +66,3 @@ def test_insert_record():
 
     assert jan_expected == list_records(backend_, dt(day=3, month=1))
     assert mar_expected == list_records(backend_, dt(day=30, month=3))
-
-    shutil.rmtree("./finances_copy")

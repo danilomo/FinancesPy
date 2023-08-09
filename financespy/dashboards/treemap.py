@@ -79,10 +79,7 @@ def tree_map_aux(category_list, categories, transactions):
 
     print(data, parents)
 
-    return (
-        "name,parent,value\n"
-        + "\n".join(data)
-    ), parents
+    return ("name,parent,value\n" + "\n".join(data)), parents
 
 
 def process_result(result):
