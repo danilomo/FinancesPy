@@ -1,6 +1,7 @@
 from openpyxl import load_workbook
 
 from financespy.backend import Backend
+import pathlib
 from financespy.transaction import Transaction, parse_transaction
 
 
@@ -12,7 +13,7 @@ def with_index(trans, index):
 class XLSXBackend(Backend):
     def __init__(self, folder):
         super().__init__()
-        self.folder = folder
+        self.folder = pathlib.Path(folder)
         self._workbooks = {}
 
     def _filename(self, date):

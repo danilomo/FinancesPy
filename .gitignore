@@ -1,6 +1,6 @@
 workspace/
 .ipynb_checkpoints/
-financespy/__pycache__
+**/__pycache__
 financespy.egg-info/
 build/
 dist/
@@ -9,4 +9,5 @@ financespy-venv/
 tests/__pycache__/
 .cache/
 myenv/
+venv/
 .idea/
