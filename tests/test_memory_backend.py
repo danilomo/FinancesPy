@@ -2,29 +2,30 @@ import pytest
 
 from financespy.memory_backend import MemoryBackend
 from financespy.transaction import parse_transaction
-from tests.test_utils import dt, get_categories, records, total_iterator
+from tests.test_utils import date as dt
+from tests.test_utils import total_iterator, records
 
 
-def test_parse_string():
-    backend = MemoryBackend(get_categories())
+def test_parse_string(categories):
+    backend = MemoryBackend(categories)
     backend.insert_record(dt(10, 2), "10, food")
 
     assert backend.records(dt(10, 2))[0].value._cents == 1000
     assert backend.records(dt(10, 2))[0].description == "food"
 
 
-def test_insert_transaction_object():
-    backend = MemoryBackend(get_categories())
+def test_insert_transaction_object(categories):
+    backend = MemoryBackend(categories)
     backend.insert_record(
-        dt(10, 2), parse_transaction("149, groceries", get_categories())
+        dt(10, 2), parse_transaction("149, groceries", categories)
     )
 
     assert backend.records(dt(10, 2))[0].value._cents == 14900
     assert backend.records(dt(10, 2))[0].description == "groceries"
 
 
-def test_invalid_type():
-    mb = MemoryBackend(get_categories())
+def test_invalid_type(categories):
+    mb = MemoryBackend(categories)
 
     with pytest.raises(TypeError):
         mb.insert_record(dt(10, 2), (100, "food"))
@@ -53,8 +54,8 @@ RECORDS_FILTERED = """2019-09-04;20.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
 
-def test_copy_from():
-    cats = get_categories()
+def test_copy_from(categories):
+    cats = categories
     mb_from = MemoryBackend(cats)
     mb_to = MemoryBackend(cats)
     mb_expected = MemoryBackend(cats)

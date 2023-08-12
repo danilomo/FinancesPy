@@ -1,6 +1,6 @@
 from financespy.account import open_account
 from financespy.memory_backend import MemoryBackend
-from tests.test_utils import get_categories, records, total_iterator
+from tests.test_utils import total_iterator, records
 
 _records = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
@@ -15,16 +15,15 @@ _records = """2019-09-04;20.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
 
-def test_copy_from():
+def test_copy_from(categories):
     account = open_account("./tests/resources/finances_csv/")
 
-    cats = get_categories()
-    mb = MemoryBackend(cats)
-    mb_expected = MemoryBackend(cats)
+    mb = MemoryBackend(categories)
+    mb_expected = MemoryBackend(categories)
 
     mb.copy_from(account.backend, year=2019)
 
-    for date, trans in records(cats, _records):
+    for date, trans in records(categories, _records):
         mb_expected.insert_record(date, trans)
 
     weeks1 = mb.month("sep", 2019).weeks()

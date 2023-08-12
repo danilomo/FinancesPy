@@ -1,9 +1,8 @@
 from financespy.money import Money
 from financespy.account import MemoryBackend
 from financespy.dashboards import Formula
-from tests.test_utils import get_categories
 from tests.test_utils import records
-
+import pytest
 
 _RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe
@@ -17,20 +16,17 @@ _RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-21;50.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
+@pytest.fixture
+def account(categories):
+    backend = MemoryBackend(categories)
 
-def get_account():
-    cats = get_categories()
-    backend = MemoryBackend(cats)
-
-    for date_, trans in records(cats, _RECORDS):
+    for date_, trans in records(categories, _RECORDS):
         backend.insert_record(date_, trans)
 
     return backend
 
 
-def test_formula():
-    account = get_account()
-
+def test_formula(account):
     formula = Formula(
         columns=[],
         categories="rewe, aldi",
@@ -51,9 +47,7 @@ def test_formula():
         assert record.value == Money(50) or record.is_lidl
 
 
-def test_formula_with_parameter():
-    account = get_account()
-
+def test_formula_with_parameter(account):
     formula = Formula(
         columns=[],
         categories="rewe, aldi",
