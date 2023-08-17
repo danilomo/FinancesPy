@@ -29,7 +29,7 @@ def account(categories):
 def test_formula(account):
     formula = Formula(
         columns=[],
-        categories="rewe, aldi",
+        categories=["rewe", "aldi"],
         categories_exclude=[],
         filter_string="value 50 = lidl is_category or",
     )
@@ -50,7 +50,7 @@ def test_formula(account):
 def test_formula_with_parameter(account):
     formula = Formula(
         columns=[],
-        categories="rewe, aldi",
+        categories=["rewe", "aldi"],
         categories_exclude=[],
         filter_string="value 50 = lidl is_category or",
     )

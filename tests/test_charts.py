@@ -4,14 +4,13 @@ from financespy.dashboards import load_dashboard
 
 def test_tree_with_formula(random_account):
     template = """
-    template:
-      rows:
-          - charts:
-              - type: treemap
-                id: overview
-                title: Tree Map
-                formula:
-                  categories: shopping, food
+template:
+  - charts:
+      - type: treemap
+        id: overview
+        title: Tree Map
+        formula:
+          categories: ["shopping", "food"]
     """
     dashboard = load_dashboard(template)
 
@@ -26,26 +25,24 @@ def test_tree_with_formula(random_account):
 
 def test_tree_with_params(random_account):
     template1 = """
-    template:
-      rows:
-          - charts:
-              - type: treemap
-                id: overview
-                title: Tree Map
-                formula:
-                  categories: $cat1, $cat2
+template:
+  - charts:
+      - type: treemap
+        id: overview
+        title: Tree Map
+        formula:
+          categories: ["$cat1", "$cat2"]
     """
     dashboard1 = load_dashboard(template1)
 
     template2 = """
-    template:
-      rows:
-          - charts:
-              - type: treemap
-                id: overview
-                title: Tree Map
-                formula:
-                  categories: shopping, food
+template:
+  - charts:
+      - type: treemap
+        id: overview
+        title: Tree Map
+        formula:
+          categories: ["shopping", "food"]
     """
     dashboard2 = load_dashboard(template2)
 

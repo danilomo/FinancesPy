@@ -2,12 +2,9 @@
 Main submodule of financespy.dashboard module. Contains the Dashboard type
 and functions to load structured data (from json/yaml) to a Dashboard object
 """
-
-from dataclasses import dataclass, field
 from typing import List
-
 import yaml
-
+from pydantic import BaseModel, Field
 from .charts import Chart
 from .formula import Formula
 
@@ -18,13 +15,13 @@ def open_file(file_name):
     """
 
     with open(file_name, "r", encoding="utf8") as yaml_file:
-        return parse_map_as_dashboard(yaml.safe_load(yaml_file))
+        return Dashboard(**yaml.safe_load(yaml_file))
 
 
 def load_dashboard(value):
     "Auxiliary function to load a dashboard file"
-
-    return parse_map_as_dashboard(yaml.safe_load(value))
+    values = yaml.safe_load(value)
+    return Dashboard(**values)
 
 
 def get_list(dict_, key, default_val=()):
@@ -38,96 +35,32 @@ def get_list(dict_, key, default_val=()):
     return result
 
 
-def parse_map_as_dashboard(obj):
-    """
-    Converts a python dictionary into a Dashboard object
-    """
-
-    template = obj.get("template", {})
-    print("Template", template)
-
-    rows = []
-    parameters = []
-    account = template.get("account", "")
-
-    for row in template.get("rows", []):
-        charts = []
-
-        for chart in row.get("charts", []):
-            formula_dict = chart.get("formula", {})
-            formula = Formula(
-                columns=get_list(formula_dict, "columns", ["sum", "cat"]),
-                categories=get_list(formula_dict, "categories", ["main_categories"]),
-                categories_exclude=get_list(formula_dict, "categories_exclude"),
-                filter_string=formula_dict.get("filter_expr", ""),
-            )
-            charts.append(
-                Chart(
-                    chart_id=chart["id"],
-                    formula=formula,
-                    title=chart["title"],
-                    chart_type=chart["type"],
-                    size=chart.get("size", "medium"),
-                    columns=chart.get("columns", ""),
-                    properties=chart.get("properties", {}),
-                )
-            )
-
-        rows.append(Row(charts))
-
-    for name, param in template.get("parameters", {}).items():
-        param_type = param.get("type", "")
-        default = param.get("default", "")
-
-        parameters.append(Parameter(name=name, param_type=param_type, default=default))
-
-    return Dashboard(rows, parameters, account)
-
-
-@dataclass
-class Row:
+class Row(BaseModel):
     """
     Represents a collection of charts that should
     be displayed in the same row
     """
-
     charts: List[Chart]
 
-    @property
-    def layout(self):
-        "Returns the layout of the row"
-        return [chart.layout for chart in self.charts]
 
-
-@dataclass
-class Parameter:
+class Parameter(BaseModel):
     """
     Defines a parameter belonging to a chart.
     """
 
     name: str = ""
-    param_type: str = ""
+    param_type: str = Field(default="", alias="type")
     default: str = ""
 
-    def to_dict(self):
-        "Returns a map structure describing the parameter"
 
-        return {
-            "name": self.name,
-            "type": self.param_type,
-            "default": self.default,
-        }
-
-
-@dataclass
-class Dashboard:
+class Dashboard(BaseModel):
     """
     Defines a custom dashboard, composed of a series of rows,
     each row containing one or more charts
     """
 
-    rows: List[Row]
-    parameters: List[Parameter]
+    template: list[Row] = Field(default_factory=list)
+    parameters: dict[str, Parameter] = Field(default_factory=dict)
     account: str = ""
 
     @property
@@ -136,7 +69,7 @@ class Dashboard:
         Returns a map of chart-id -> chart
         """
         charts = {}
-        for row in self.rows:
+        for row in self.template:
             for chart in row.charts:
                 charts[chart.chart_id] = chart
 
@@ -153,18 +86,3 @@ class Dashboard:
             for chart in self.charts.values()
         ]
 
-    @property
-    def layout(self):
-        """
-        Returns an object that describes the layout of the dashboard
-        """
-        return [row.layout for row in self.rows]
-
-    def to_dict(self):
-        """
-        Returns the recipe of the dashboard: its layout and accepted parameters
-        """
-        return {
-            "layout": self.layout,
-            "parameters": [param.to_dict() for param in self.parameters],
-        }

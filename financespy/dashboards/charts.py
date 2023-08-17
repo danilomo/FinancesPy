@@ -3,10 +3,9 @@ This module hosts the Chart type and supporting functions for extracting
 chart data, based on the chart type, filters, and parameters (transactions
 and parameter map)
 """
-
-from dataclasses import dataclass, field
 from collections import defaultdict
-
+from pydantic import BaseModel, Field
+from typing import Any
 from .formula import Formula
 from .reducers import CategoryReducer, new_reducer
 from .treemap import tree_map
@@ -102,19 +101,18 @@ chart_to_formula = defaultdict(
 )
 
 
-@dataclass
-class Chart:
+class Chart(BaseModel):
     """
     Defines the chart type.
     """
 
-    chart_id: str
-    title: str
-    size: str
-    chart_type: str
-    formula: Formula = None
+    chart_id: str = Field(alias="id")
+    title: str = ""
+    size: str = ""
+    chart_type: str = Field(alias="type")
+    formula: Formula | None = Formula()
     columns: str = ""
-    properties: dict = field(default_factory=dict)
+    properties: dict[str, Any]= Field(default_factory=dict)
 
     def chart_data(self, transactions, account, params):
         """ "
@@ -136,14 +134,3 @@ class Chart:
             ),
         }
 
-    @property
-    def layout(self):
-        "Returns a dictionary that describes the layout of the chart in the UI"
-        return {
-            "id": self.chart_id,
-            "title": self.title,
-            "size": self.size,
-            "type": self.chart_type,
-            "columns": self.columns,
-            "properties": self.properties,
-        }

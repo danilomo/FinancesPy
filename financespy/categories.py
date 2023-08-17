@@ -7,6 +7,7 @@ class Category:
         return self.name
 
     def matches(self, cat):
+
         if type(cat) is str and self.name == cat:
             return True
 

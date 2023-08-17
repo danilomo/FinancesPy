@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 from typing import List
 
 
@@ -89,8 +89,8 @@ def apply_filter(filter_expr, state):
     return state.stack.pop()
 
 
-@dataclass
-class Formula:
+
+class Formula(BaseModel):
     """
     This class is like a Python list generator for transaction records:
 
@@ -100,10 +100,10 @@ class Formula:
 
     """
 
-    columns: List[str]
-    categories: List[str]
-    categories_exclude: List[str]
-    filter_string: str
+    columns: list[str] = Field(default=["sum", "cat"])
+    categories: list[str] = Field(default=["main_categories"])
+    categories_exclude: list[str] = Field(default_factory=list)
+    filter_string: str = ""
 
     def category_list_flat(self, categories, params):
         return [categories.category(cat, params) for cat in self.categories]
@@ -134,5 +134,3 @@ class Formula:
             str_to_token(element.strip()) for element in self.filter_string.split(" ")
         ]
 
-
-EMPTY_FORMULA = Formula([], [], [], "")

@@ -8,14 +8,13 @@ import pytest
 def test_summary(random_account):
     template = """
     template:
-        rows:
-            - charts:
-                - type: table
-                  id: overview1
-                  formula:
-                    columns: sum, cat
-                    categories: "main_categories"
-                  title: Overview 1
+        - charts:
+            - type: table
+              id: overview1
+              formula:
+                columns: ['sum', 'cat']
+                categories: ['main_categories'] 
+              title: Overview 1
     """
     dashboard = load_dashboard(template)
 
@@ -44,14 +43,13 @@ def test_summary(random_account):
 
 def test_pie(random_account):
     template = """
-    template:
-        rows:
-            - charts:
-                - type: pie
-                  id: overview1
-                  formula:
-                    categories: "main_categories"
-                  title: Overview 1
+template:
+  - charts:
+      - type: pie
+        id: overview1
+        formula:
+          categories: ["main_categories"]
+        title: Overview 1
     """
     dashboard = load_dashboard(template)
 
@@ -82,17 +80,16 @@ def test_pie(random_account):
 
 def test_budget(random_account):
     template = """
-    template:
-      rows:
-          - charts:
-              - type: budget
-                id: overview
-                title: Monthly budget
-                properties:
-                  budgets:
-                    food: 450
-                    shopping: 700
-                    body_and_hygiene: 100
+template:
+  - charts:
+      - type: budget
+        id: overview
+        title: Monthly budget
+        properties:
+          budgets:
+            food: 450
+            shopping: 700
+            body_and_hygiene: 100
     """
     dashboard = load_dashboard(template)
 
@@ -121,14 +118,14 @@ def test_budget(random_account):
 
 def test_tree(random_account):
     template = """
-    template:
-      rows:
-          - charts:
-              - type: treemap
-                id: overview
-                title: Tree Map
+template:
+  - charts:
+      - type: treemap
+        id: overview
+        title: Tree Map
     """
     dashboard = load_dashboard(template)
+    print(dashboard)
 
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
@@ -146,20 +143,19 @@ def test_parameters(random_account, param_val):
     supplied parameter map
     """
     template = """
-    template:
-        parameters:
-            selected_cat:
-                type: category
-                name: selected_cat
-                label: "Selected category"
-                default: expenses
-        rows:
-            - charts:
-                - type: pie
-                  id: overview
-                  title: Overview
-                  formula:
-                    categories: $selected_cat.children
+parameters:
+  selected_cat:
+      type: category
+      name: selected_cat
+      label: "Selected category"
+      default: expenses
+template:
+  - charts:
+      - type: pie
+        id: overview
+        title: Overview
+        formula:
+          categories: ["$selected_cat.children"]
     """
     dashboard = load_dashboard(template)
 
