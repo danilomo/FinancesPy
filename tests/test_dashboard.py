@@ -21,7 +21,9 @@ def test_summary(random_account):
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     totals = {}
     cats = random_account.categories.categories("main_categories")
@@ -56,7 +58,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     totals = {}
     cats = random_account.categories.categories("main_categories")
@@ -96,7 +100,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     totals = {}
     cats = random_account.categories.categories("[food, shopping, body_and_hygiene]")
@@ -130,7 +136,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     data = dashboard.chart_data(transactions, random_account)
     print(data)
@@ -162,7 +170,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     totals = {}
     cats = random_account.categories.categories(f"{param_val}.children")
@@ -174,7 +184,9 @@ template:
                 totals[cat.name] += t.value
                 break
 
-    data = dashboard.chart_data(transactions, random_account, {"selected_cat": param_val})
+    data = dashboard.chart_data(
+        transactions, random_account, {"selected_cat": param_val}
+    )
 
     totals_from_chart = {}
     for total, cat_name in data[0]["data"]:

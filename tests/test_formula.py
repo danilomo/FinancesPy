@@ -16,6 +16,7 @@ _RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-21;50.0, withdrawal
 2019-09-21;25.0, train_ticket"""
 
+
 @pytest.fixture
 def account(categories):
     backend = MemoryBackend(categories)

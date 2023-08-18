@@ -24,7 +24,6 @@ def tree_map(categories, transactions):
     rows = []
 
     def walk(cat, max_depth=3, level=0):
-
         children = categories.children(cat)
 
         if not children or level == max_depth:

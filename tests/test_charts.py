@@ -17,7 +17,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     data = dashboard.chart_data(transactions, random_account)
     print(data)
@@ -49,7 +51,9 @@ template:
     date_from = date(year=2021, month=1, day=28)
     date_to = date(year=2021, month=5, day=28)
 
-    transactions = list(random_account.transactions(date_from=date_from, date_to=date_to))
+    transactions = list(
+        random_account.transactions(date_from=date_from, date_to=date_to)
+    )
 
     data1 = dashboard1.chart_data(
         transactions, random_account, params={"cat1": "shopping", "cat2": "food"}

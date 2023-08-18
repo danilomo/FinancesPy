@@ -112,7 +112,7 @@ class Chart(BaseModel):
     chart_type: str = Field(alias="type")
     formula: Formula | None = Formula()
     columns: str = ""
-    properties: dict[str, Any]= Field(default_factory=dict)
+    properties: dict[str, Any] = Field(default_factory=dict)
 
     def chart_data(self, transactions, account, params):
         """ "
@@ -133,4 +133,3 @@ class Chart(BaseModel):
                 params=params,
             ),
         }
-

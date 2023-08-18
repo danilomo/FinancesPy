@@ -191,7 +191,6 @@ class Currencies:
 
 class Money:
     def __init__(self, value=None, cents=None, currency=_default_currencies["USD"]):
-
         self.currency = currency
 
         if value is None and cents is None:

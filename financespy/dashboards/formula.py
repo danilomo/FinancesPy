@@ -89,7 +89,6 @@ def apply_filter(filter_expr, state):
     return state.stack.pop()
 
 
-
 class Formula(BaseModel):
     """
     This class is like a Python list generator for transaction records:
@@ -133,4 +132,3 @@ class Formula(BaseModel):
         return [
             str_to_token(element.strip()) for element in self.filter_string.split(" ")
         ]
-

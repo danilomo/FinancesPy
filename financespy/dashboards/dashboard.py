@@ -40,6 +40,7 @@ class Row(BaseModel):
     Represents a collection of charts that should
     be displayed in the same row
     """
+
     charts: List[Chart]
 
 
@@ -85,4 +86,3 @@ class Dashboard(BaseModel):
             chart.chart_data(transactions, account, params)
             for chart in self.charts.values()
         ]
-

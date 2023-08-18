@@ -5,6 +5,7 @@ from financespy.xlsx_backend import XLSXBackend
 import pytest
 from .test_utils import date
 
+
 @pytest.fixture
 def backend(tmp_path, categories):
     shutil.copytree("./tests/resources/finances", tmp_path / "finances")

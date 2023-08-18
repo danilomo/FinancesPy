@@ -2,7 +2,6 @@ import datetime
 from financespy.transaction import parse_transaction
 
 
-
 def date(day, month, year=2019):
     return datetime.date(day=day, month=month, year=year)
 

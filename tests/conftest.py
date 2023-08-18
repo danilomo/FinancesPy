@@ -11,103 +11,104 @@ from financespy.money import Money
 @pytest.fixture
 def category_list():
     return [
+        {
+            "expenses": [
+                {"others": ["uncategorized", "withdrawal", "misc"]},
+                {"church": ["tithes", "offering"]},
                 {
-                    "expenses": [
-                        {"others": ["uncategorized", "withdrawal", "misc"]},
-                        {"church": ["tithes", "offering"]},
+                    "food": [
                         {
-                            "food": [
-                                {
-                                    "groceries": [
-                                        "lidl",
-                                        "aldi",
-                                        "edeka",
-                                        "asia_market",
-                                        "alnatura",
-                                        "rewe",
-                                        "netto",
-                                        "penny",
-                                        "rossmann",
-                                        "yaz",
-                                        "nahkauf",
-                                        "bakery",
-                                        "backery",
-                                        "asia",
-                                    ]
-                                },
-                                "restaurant",
-                                "street_food",
-                                "kfc",
-                                "hamburguer",
-                                "icecream",
-                                "mc",
-                                "sushi",
-                                "bk",
+                            "groceries": [
+                                "lidl",
+                                "aldi",
+                                "edeka",
+                                "asia_market",
+                                "alnatura",
+                                "rewe",
+                                "netto",
+                                "penny",
+                                "rossmann",
+                                "yaz",
+                                "nahkauf",
+                                "bakery",
+                                "backery",
+                                "asia",
                             ]
                         },
-                        {"utilities": ["internet", "electricity", "cellphone_balance"]},
-                        {"travel": ["plane_ticket", "hotel_reservation", "train_ticket"]},
-                        {"tax": ["tv_tax"]},
-                        {
-                            "shopping": [
-                                "saturn",
-                                "electronics",
-                                "clothing",
-                                "sports",
-                                "tkmax",
-                                "h_m",
-                                "kaufhoff",
-                                "furniture",
-                                "shopping_misc",
-                                "shoes",
-                                "tedi",
-                                "purses",
-                                "jewlery",
-                                "home_goods",
-                                "action",
-                                "real",
-                                "clothes",
-                                "moemax",
-                            ]
-                        },
-                        {
-                            "education": [
-                                {"course_fee": ["german_course", "inlingua", "vhs"]},
-                                "textbook",
-                                "school_supplies",
-                                "magazine",
-                                "book",
-                            ]
-                        },
-                        {
-                            "body_and_hygiene": [
-                    "dm",
-                    "perfume",
-                    "hair_product",
-                    "apotheke",
-                    "mueller",
-                    "douglas",
-                    "hairdresser",
-                    "nails",
-                    "müller",
-                ]
-            },
-            {
-                "commuting": [
-                    "monthly_ticket",
-                    "day_ticket",
-                    "single_ticket",
-                    "bus_ticket",
-                ]
-            },
-        ]
-    }
-]
+                        "restaurant",
+                        "street_food",
+                        "kfc",
+                        "hamburguer",
+                        "icecream",
+                        "mc",
+                        "sushi",
+                        "bk",
+                    ]
+                },
+                {"utilities": ["internet", "electricity", "cellphone_balance"]},
+                {"travel": ["plane_ticket", "hotel_reservation", "train_ticket"]},
+                {"tax": ["tv_tax"]},
+                {
+                    "shopping": [
+                        "saturn",
+                        "electronics",
+                        "clothing",
+                        "sports",
+                        "tkmax",
+                        "h_m",
+                        "kaufhoff",
+                        "furniture",
+                        "shopping_misc",
+                        "shoes",
+                        "tedi",
+                        "purses",
+                        "jewlery",
+                        "home_goods",
+                        "action",
+                        "real",
+                        "clothes",
+                        "moemax",
+                    ]
+                },
+                {
+                    "education": [
+                        {"course_fee": ["german_course", "inlingua", "vhs"]},
+                        "textbook",
+                        "school_supplies",
+                        "magazine",
+                        "book",
+                    ]
+                },
+                {
+                    "body_and_hygiene": [
+                        "dm",
+                        "perfume",
+                        "hair_product",
+                        "apotheke",
+                        "mueller",
+                        "douglas",
+                        "hairdresser",
+                        "nails",
+                        "müller",
+                    ]
+                },
+                {
+                    "commuting": [
+                        "monthly_ticket",
+                        "day_ticket",
+                        "single_ticket",
+                        "bus_ticket",
+                    ]
+                },
+            ]
+        }
+    ]
 
 
 @pytest.fixture
 def categories(category_list):
     return cats.categories_from_list(category_list)
+
 
 @pytest.fixture
 def random_account(categories):

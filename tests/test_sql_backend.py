@@ -23,6 +23,7 @@ db = db_object(base)
 Transaction = transaction_class(db)
 Account = account_class(db)
 
+
 @pytest.fixture
 def records(categories):
     RECORDS = """2019-09-04;20.0, withdrawal
@@ -37,7 +38,11 @@ def records(categories):
     2019-09-21;50.0, withdrawal
     2019-09-21;25.0, train_ticket"""
     recs = (tuple(line.split(";")) for line in RECORDS.split("\n"))
-    return [(parse_date(date.strip()), parse_transaction(trans, categories)) for date, trans in recs]
+    return [
+        (parse_date(date.strip()), parse_transaction(trans, categories))
+        for date, trans in recs
+    ]
+
 
 @pytest.fixture
 def account(category_list, categories):
