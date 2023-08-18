@@ -50,7 +50,7 @@ class Parameter(BaseModel):
     """
 
     name: str = ""
-    param_type: str = Field(default="", alias="type")
+    param_type: str = Field(default="", alias="type", serialization_alias="type")
     default: str = ""
 
 
@@ -61,7 +61,7 @@ class Dashboard(BaseModel):
     """
 
     template: list[Row] = Field(default_factory=list)
-    parameters: dict[str, Parameter] = Field(default_factory=dict)
+    parameters: list[Parameter] = Field(default_factory=list)
     account: str = ""
 
     @property

@@ -106,10 +106,10 @@ class Chart(BaseModel):
     Defines the chart type.
     """
 
-    chart_id: str = Field(alias="id")
+    chart_id: str = Field(alias="id", serialization_alias="id")
     title: str = ""
     size: str = ""
-    chart_type: str = Field(alias="type")
+    chart_type: str = Field(alias="type", serialization_alias="type")
     formula: Formula | None = Formula()
     columns: str = ""
     properties: dict[str, Any] = Field(default_factory=dict)
