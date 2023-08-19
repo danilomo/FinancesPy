@@ -1,6 +1,6 @@
 import pytest
 
-from financespy.memory_backend import MemoryBackend
+from financespy.backends.memory_backend import MemoryBackend
 from financespy.transaction import parse_transaction
 from tests.test_utils import date as dt
 from tests.test_utils import total_iterator, records

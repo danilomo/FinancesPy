@@ -1,7 +1,7 @@
 import shutil
 from financespy.transaction import parse_transaction
 from financespy.account import open_account
-from financespy.xlsx_backend import XLSXBackend
+from financespy.backends.xlsx_backend import XLSXBackend
 import pytest
 from .test_utils import date
 

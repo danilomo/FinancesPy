@@ -6,8 +6,8 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import financespy.account as acc
-from financespy.memory_backend import MemoryBackend
-from financespy.sql_backend import (
+from financespy.backends.memory_backend import MemoryBackend
+from financespy.backends.sql_backend import (
     SQLBackend,
     account_class,
     db_object,

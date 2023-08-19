@@ -4,7 +4,7 @@ from datetime import datetime
 try:
     import gnucash
     from financespy.account import open_account
-    from financespy.memory_backend import MemoryBackend
+    from financespy.backends.memory_backend import MemoryBackend
     from financespy.transaction import parse_transaction
 
     _gnucash_module_loaded = True

@@ -7,9 +7,9 @@ from datetime import date
 from pathlib import Path
 
 from financespy.categories import Categories, categories_from_list
-from financespy.filesystem_backend import FilesystemBackend
-from financespy.memory_backend import MemoryBackend
-from financespy.xlsx_backend import XLSXBackend
+from financespy.backends.filesystem_backend import FilesystemBackend
+from financespy.backends.memory_backend import MemoryBackend
+from financespy.backends.xlsx_backend import XLSXBackend
 
 _current_year = datetime.datetime.now().year
 
@@ -117,7 +117,7 @@ def open_gnucash(gnucash_file):
     from gnucash import Session
 
     from financespy import gnucash_backend
-    from financespy.gnucash_backend import GnucashBackend
+    from financespy.backends.gnucash_backend import GnucashBackend
 
     path = Path(gnucash_file)
     metadata_file = re.sub("[.]gnucash$", ".json", path.name)

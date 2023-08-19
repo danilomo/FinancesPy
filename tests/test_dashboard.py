@@ -152,11 +152,10 @@ def test_parameters(random_account, param_val):
     """
     template = """
 parameters:
-  selected_cat:
-      type: category
-      name: selected_cat
-      label: "Selected category"
-      default: expenses
+      - type: category
+        name: selected_cat
+        label: "Selected category"
+        default: expenses
 template:
   - charts:
       - type: pie

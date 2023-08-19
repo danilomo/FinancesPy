@@ -11,7 +11,7 @@ from gnucash import (
 )
 
 from financespy.categories import Categories, Category
-from financespy.memory_backend import month_iterator_from_query
+from financespy.backends.memory_backend import month_iterator_from_query
 from financespy.transaction import Transaction
 
 # These constants come from enums from C implementation

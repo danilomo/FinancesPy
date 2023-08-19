@@ -7,7 +7,7 @@ from sqlalchemy import and_
 import financespy.transaction
 from financespy.account import AccountMetadata
 from financespy.categories import categories_from_list
-from financespy.memory_backend import month_iterator_from_query
+from financespy.backends.memory_backend import month_iterator_from_query
 from financespy.money import Money
 
 

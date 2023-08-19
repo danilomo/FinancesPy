@@ -1,5 +1,5 @@
 from financespy.account import open_account
-from financespy.memory_backend import MemoryBackend
+from financespy.backends.memory_backend import MemoryBackend
 from tests.test_utils import total_iterator, records
 
 _records = """2019-09-04;20.0, withdrawal
