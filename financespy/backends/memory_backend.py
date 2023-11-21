@@ -4,6 +4,7 @@ from datetime import datetime
 from financespy.backend import Backend, CompositeBackend
 from financespy.time_factory import parse_month
 from financespy.transaction import Transaction, parse_transaction
+from financespy.models import TransactionModel
 
 
 class MemoryBackend(Backend):
@@ -13,6 +14,9 @@ class MemoryBackend(Backend):
         self.categories = categories
 
     def insert_record(self, date, record):
+        if type(record) is TransactionModel:
+            record = Transaction.to_transaction(record, self.categories)
+
         if type(record) is str:
             record = parse_transaction(record, self.categories)
 

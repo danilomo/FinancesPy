@@ -1,5 +1,7 @@
 import financespy.money as money
 from financespy.money import Money
+from financespy.models import TransactionModel
+from financespy.categories import Categories
 
 
 class ParseTransactionError(Exception):
@@ -8,11 +10,12 @@ class ParseTransactionError(Exception):
 
 
 class Transaction:
-    def __init__(self, value, description, categories, id=None):
+    def __init__(self, value, description, categories, id=None, date=None):
         self.value = money.Money(value) if type(value) != Money else value
         self.categories = categories
         self.description = description
         self.id = id
+        self.date = date
 
     def as_expense(self):
         new_value = -1 * self.value.abs()
@@ -46,24 +49,23 @@ class Transaction:
 
     __str__ = __repr__
 
-    def to_dict(self):
-        result = {
-            "value": int(self.value),
-            "description": self.description,
-            "categories": [cat.name for cat in self.categories],
-        }
-
-        if self.date is not None:
-            result["date"] = {
-                "day": self.date.day,
-                "month": self.date.month,
-                "year": self.date.year,
-            }
-
-        if self.id is not None:
-            result["id"] = self.id
-
-        return result
+    def to_model_obj(self):
+        return TransactionModel(
+            id=self.id,
+            value=int(self.value),
+            date=self.date,
+            categories=[str(cat) for cat in self.categories],
+        )
+    
+    @staticmethod
+    def to_transaction(model_obj: TransactionModel, cats: Categories):
+        category_list = [cats.category(name) for name in  model_obj.categories]
+        return Transaction(
+            value = model_obj.value,
+            categories=category_list,
+            description=model_obj.description,  
+            date=model_obj.date          
+        )
 
 
 def parse_transaction(record, categories, separator=","):

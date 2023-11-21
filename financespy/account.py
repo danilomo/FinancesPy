@@ -264,8 +264,6 @@ def transactions_per_range(backend, date_from, date_to):
         for year in range(year_from, year_to + 1):
             for month in range(1, 13):
                 dt = date(year=year, month=month, day=1)
-                if dt < date_from or dt > date_to:
-                    continue
 
                 for transaction in backend.month(year=year, month=month).records():
                     dt = transaction.date
