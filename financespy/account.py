@@ -116,7 +116,7 @@ def read_metadata(account_json):
 def open_gnucash(gnucash_file):
     from gnucash import Session
 
-    from financespy import gnucash_backend
+    from financespy.backends import gnucash_backend
     from financespy.backends.gnucash_backend import GnucashBackend
 
     path = Path(gnucash_file)
@@ -217,7 +217,7 @@ class Account:
         are not considered.
         """
 
-        self.backend.insert_record(date_, transaction)
+        return self.backend.insert_record(date_, transaction)
 
     def copy_year(self, account, year, tags=[], filters=[]):
         """Copies all transactions for an entire year from a source account
@@ -236,6 +236,12 @@ class Account:
                     trans.add_category(cat)
 
                 self.insert_record(trans.date, trans)
+
+    def update_record(self, transaction):
+        self.backend.edit_record(transaction)
+
+    def delete_record(self, id):
+        self.backend.delete_record(id)
 
 
 def filtered_records(records_it, filters):

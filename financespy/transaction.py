@@ -28,7 +28,7 @@ class Transaction:
         return "%s, %s, %s" % (str(self.value), self.description, str(self.categories))
 
     def main_category(self):
-        return self.categories[0]
+        return self.categories[0] if self.categories else "uncategorized"
 
     def add_category(self, category):
         self.categories.append(category)
@@ -59,9 +59,11 @@ class Transaction:
     
     @staticmethod
     def to_transaction(model_obj: TransactionModel, cats: Categories):
+        model_obj = TransactionModel.model_validate(model_obj)
         category_list = [cats.category(name) for name in  model_obj.categories]
         return Transaction(
-            value = model_obj.value,
+            id = model_obj.id,
+            value = Money(cents=model_obj.value),
             categories=category_list,
             description=model_obj.description,  
             date=model_obj.date          

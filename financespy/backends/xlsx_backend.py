@@ -1,12 +1,14 @@
 from openpyxl import load_workbook
 
 from financespy.backend import Backend
+from financespy.money import Money
 import pathlib
 from financespy.transaction import Transaction, parse_transaction
+from datetime import datetime
 
 
-def with_index(trans, index):
-    trans.id = index
+def with_id(trans, id):
+    trans.id = id
     return trans
 
 
@@ -27,13 +29,24 @@ class XLSXBackend(Backend):
 
         return self._workbooks[date.year]
 
+    def _row_to_transaction(self, row):
+        cat = lambda c: self.categories.category(c)
+        categories = [
+            cat(c) for c in (
+                cat.strip() for cat in row[1].value.split(",")
+            )
+        ]
+        return Transaction(
+            value=Money(row[2].value),
+            categories=categories,
+            description=row[3].value
+        )
+
     def _rows_to_records(self, rows, date):
         return (
-            with_index(
-                parse_transaction(
-                    str(row[2].value) + "," + str(row[1].value), self.categories
-                ),
-                index,
+            with_id(
+                self._row_to_transaction(row),
+                f"{date}_{index}",
             )
             for row, index in list(rows)[1:]
             if row[0].value and date.day == int(row[0].value)
@@ -68,14 +81,41 @@ class XLSXBackend(Backend):
 
         workbook.save(self._filename(date))
 
-    def update_record(self, transaction):
-        date = transaction.date
+    def edit_record(self, transaction):
+        date_str, pos_str = transaction.id.split("_")
+
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+
+        if transaction.date != date:
+            self._edit_record_with_new_date(transaction)
+
         workbook = self._get_workbook(date)
         sheet = workbook.worksheets[date.month - 1]
 
-        sheet[transaction.id] = [
-            date.day,
-            str(transaction.main_category()),
-            str(transaction.value),
-            transaction.description,
-        ]
+        pos = int(pos_str) + 1 # plus one to skip header
+
+        if transaction.categories:
+            sheet.cell(row=pos, column=2).value = ", ".join(str(cat) for cat in transaction.categories)
+
+        if transaction.value:
+            sheet.cell(row=pos, column=3).value = str(transaction.value)
+
+        if transaction.description:
+            sheet.cell(row=pos, column=4).value = transaction.description
+
+        workbook.save(self._filename(date))
+
+    def _edit_record_with_new_date(self, transaction):
+        self.delete_record(transaction.id)
+        self.insert_record(transaction.date, transaction)
+
+    def delete_record(self, id):
+        date_str, pos_str = id.split("_")
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+        pos = int(pos_str) + 1
+
+        workbook = self._get_workbook(date)
+        sheet = workbook.worksheets[date.month - 1]
+
+        sheet.delete_rows(pos)
+        workbook.save(self._filename((date)))

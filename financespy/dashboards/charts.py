@@ -84,7 +84,7 @@ def pie_chart_data(formula, transactions, categories, params):
 
 def budget_chart_formula(chart):
     return Formula(
-        columns=["cat", "sum"],
+        columns=["sum", "cat"],
         categories=[key for key, val in chart.properties["budgets"].items()],
         categories_exclude=[],
         filter_string="",
