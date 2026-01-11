@@ -1,11 +1,14 @@
 import os
 from datetime import datetime
 
-try:
+import pytest
 
-    from financespy.account import open_account
-    from financespy.backends.memory_backend import MemoryBackend
-    from financespy.transaction import parse_transaction
+from financespy.account import open_account
+from financespy.backends.memory_backend import MemoryBackend
+from financespy.transaction import parse_transaction
+
+try:
+    import gnucash  # noqa: F401
 
     _gnucash_module_loaded = True
 except ImportError:
@@ -39,10 +42,8 @@ def total_iterator(iterator):
     return weeks
 
 
+@pytest.mark.skipif(not _gnucash_module_loaded, reason="gnucash module not available")
 def test_insert_records():
-    if not _gnucash_module_loaded:
-        return
-
     os.system("cp -R ./tests/resources/gnucash ./gnucash")
 
     try:

@@ -116,7 +116,7 @@ def read_metadata(account_json: Path) -> "AccountMetadata":
 
 
 def open_gnucash(gnucash_file: str) -> "Account":
-    from gnucash import Session  # type: ignore[import-untyped]
+    from gnucash import Session  # type: ignore[import-not-found]
 
     from financespy.backends import gnucash_backend
     from financespy.backends.gnucash_backend import GnucashBackend

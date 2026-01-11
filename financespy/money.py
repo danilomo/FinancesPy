@@ -268,7 +268,11 @@ class Money:
             return
 
         if isinstance(value, str):
-            self._set_float(float(value))
+            # Check if string represents an integer (no decimal point)
+            if "." not in value:
+                self._cents = int(value) * 100
+            else:
+                self._set_float(float(value))
         elif isinstance(value, int):
             self._cents = value * 100
         elif isinstance(value, float):

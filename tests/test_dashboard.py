@@ -117,7 +117,7 @@ template:
 
     data = dashboard.chart_data(transactions, random_account)
     totals_from_chart = {}
-    for cat_name, total in data[0]["data"]:
+    for total, cat_name in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
     assert set(totals.items()) == set(totals_from_chart.items())
