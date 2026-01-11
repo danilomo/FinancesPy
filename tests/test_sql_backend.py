@@ -1,27 +1,20 @@
 import json
-from datetime import datetime
 
+import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import financespy.account as acc
 from financespy.backends.memory_backend import MemoryBackend
 from financespy.backends.sql_backend import (
+    Account,
+    Base,
     SQLBackend,
-    account_class,
-    db_object,
     read_account_metadata,
-    transaction_class,
 )
-from .test_utils import parse_date
 from financespy.transaction import parse_transaction
-import pytest
 
-base = declarative_base()
-db = db_object(base)
-Transaction = transaction_class(db)
-Account = account_class(db)
+from .test_utils import parse_date
 
 
 @pytest.fixture
@@ -47,18 +40,28 @@ def records(categories):
 @pytest.fixture
 def account(category_list, categories):
     engine = create_engine("sqlite:///:memory:", echo=True)
-    base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
 
     test_account = Account(
-        name="savings", currency="eur", categories=json.dumps(category_list), user_id=1
+        name="savings",
+        currency="eur",
+        categories=json.dumps(category_list),
+        user_id=1,
+        created_at=parse_date("2023-01-01"),
     )
     session.add(test_account)
     session.commit()
-    account_data = read_account_metadata(session, 1, Account)
-    backend = SQLBackend(session=session, account_id=1, transaction_class=Transaction)
+    account_data = read_account_metadata(session, 1)
+    backend = SQLBackend(
+        account_id=1,
+        session=session,
+        categories=categories,
+    )
 
+    if account_data is None:
+        raise ValueError("Failed to read account metadata")
     return acc.Account(backend, account_data)
 
 

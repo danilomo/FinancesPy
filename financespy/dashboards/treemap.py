@@ -1,7 +1,12 @@
+from typing import Any
+
+from financespy.categories import Categories, Category
+from financespy.dashboards.formula import Formula
 from financespy.money import ZERO
+from financespy.transaction import Transaction
 
 
-def transaction_in_list(transaction, categories):
+def transaction_in_list(transaction: Transaction, categories: list[Category]) -> bool:
     for cat in categories:
         if transaction.matches_category(cat):
             return True
@@ -9,14 +14,18 @@ def transaction_in_list(transaction, categories):
     return False
 
 
-def tree_map(formula, transactions, categories, params):
+def tree_map(
+    formula: Formula,
+    transactions: list[Transaction],
+    categories: Categories,
+    params: dict,
+) -> list[dict]:
     category_list = formula.category_list_flat(categories, params)
 
     if not category_list:
         category_list = [categories.category("expenses")]
 
     data, parents = tree_map_aux(
-        category_list,
         categories,
         [trans for trans in transactions if transaction_in_list(trans, category_list)],
     )
@@ -24,7 +33,7 @@ def tree_map(formula, transactions, categories, params):
     return [{"data": data, "parents": parents}]
 
 
-def map_row(row, transactions):
+def map_row(row: tuple[Category, bool], transactions: list[Transaction]) -> list[Any]:
     cat, is_leaf = row
     parent = cat.parent.name if cat.parent else None
 
@@ -42,7 +51,10 @@ def map_row(row, transactions):
     return [cat.name, parent, total, is_leaf]
 
 
-def tree_map_aux(category_list, categories, transactions):
+def tree_map_aux(
+    categories: Categories,
+    transactions: list[Transaction],
+) -> tuple[str, list[str]]:
     rows = []
 
     def walk(cat, max_depth=3, level=0):
@@ -82,9 +94,9 @@ def tree_map_aux(category_list, categories, transactions):
     return ("name,parent,value\n" + "\n".join(data)), parents
 
 
-def process_result(result):
-    to_include = set()
-    for name, parent, total in result:
+def process_result(result: list[tuple[str, str, Any]]) -> tuple[list[str], list[str]]:
+    to_include: set[str] = set()
+    for _name, parent, total in result:
         if total:
             to_include.add(parent)
 

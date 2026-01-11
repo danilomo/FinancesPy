@@ -1,31 +1,34 @@
 import pytest
 
 from financespy.backends.memory_backend import MemoryBackend
+from financespy.exceptions import BackendError, DataValidationError
 from financespy.transaction import parse_transaction
 from tests.test_utils import date as dt
-from tests.test_utils import total_iterator, records
+from tests.test_utils import records, total_iterator
 
 
 def test_parse_string(categories):
     backend = MemoryBackend(categories)
     backend.insert_record(dt(10, 2), "10, food")
 
-    assert backend.records(dt(10, 2))[0].value._cents == 1000
-    assert backend.records(dt(10, 2))[0].description == "food"
+    records_list = list(backend.records(dt(10, 2)))
+    assert records_list[0].value._cents == 1000
+    assert records_list[0].description == "food"
 
 
 def test_insert_transaction_object(categories):
     backend = MemoryBackend(categories)
     backend.insert_record(dt(10, 2), parse_transaction("149, groceries", categories))
 
-    assert backend.records(dt(10, 2))[0].value._cents == 14900
-    assert backend.records(dt(10, 2))[0].description == "groceries"
+    records_list = list(backend.records(dt(10, 2)))
+    assert records_list[0].value._cents == 14900
+    assert records_list[0].description == "groceries"
 
 
 def test_invalid_type(categories):
     mb = MemoryBackend(categories)
 
-    with pytest.raises(TypeError):
+    with pytest.raises((DataValidationError, BackendError)):
         mb.insert_record(dt(10, 2), (100, "food"))
 
 

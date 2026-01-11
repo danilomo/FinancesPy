@@ -1,8 +1,11 @@
 import shutil
-from financespy.transaction import parse_transaction
+
+import pytest
+
 from financespy.account import open_account
 from financespy.backends.xlsx_backend import XLSXBackend
-import pytest
+from financespy.transaction import parse_transaction
+
 from .test_utils import date
 
 
@@ -10,9 +13,7 @@ from .test_utils import date
 def backend(tmp_path, categories):
     shutil.copytree("./tests/resources/finances", tmp_path / "finances")
     path = tmp_path / "finances"
-    back = XLSXBackend(path)
-    back.categories = categories
-    back.currency = "eur"
+    back = XLSXBackend(path, categories)
 
     return back
 

@@ -1,11 +1,12 @@
-import pytest
-from financespy import categories as cats
-from financespy.transaction import parse_transaction
-from financespy.account import memory_account
-from datetime import date
 import random
-from financespy.transaction import Transaction
+from datetime import date
+
+import pytest
+
+from financespy import categories as cats
+from financespy.account import memory_account
 from financespy.money import Money
+from financespy.transaction import Transaction
 
 
 @pytest.fixture

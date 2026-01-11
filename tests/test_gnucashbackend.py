@@ -2,13 +2,13 @@ import os
 from datetime import datetime
 
 try:
-    import gnucash
+
     from financespy.account import open_account
     from financespy.backends.memory_backend import MemoryBackend
     from financespy.transaction import parse_transaction
 
     _gnucash_module_loaded = True
-except:
+except ImportError:
     _gnucash_module_loaded = False
 
 records_ = """2019-09-04;20.0, Books

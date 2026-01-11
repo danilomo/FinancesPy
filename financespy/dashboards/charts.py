@@ -3,15 +3,18 @@ This module hosts the Chart type and supporting functions for extracting
 chart data, based on the chart type, filters, and parameters (transactions
 and parameter map)
 """
+
 from collections import defaultdict
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
-from typing import Any
+
 from .formula import Formula
 from .reducers import CategoryReducer, new_reducer
 from .treemap import tree_map
 
 
-def reducers(columns, cat):
+def reducers(columns: list[str], cat: str) -> list[Any]:
     """
     Returns a list reducer objects for a list of columns (cat, sum, count,
     etc.),
@@ -39,13 +42,15 @@ def reducers(columns, cat):
     return result
 
 
-def result_row(row):
+def result_row(row: list[Any]) -> list[Any]:
     "Returns the final values collecteds by each reducer of a row"
 
     return [reducer.total() for reducer in row]
 
 
-def summary_function(formula, transactions, categories, params):
+def summary_function(
+    formula: Formula, transactions: list[Any], categories: Any, params: dict[str, Any]
+) -> list[list[Any]]:
     """
     Generic chart function that takes a list of transactions, groups them by
     categories, and produces a summary for each group. The list of categories
@@ -74,7 +79,9 @@ def summary_function(formula, transactions, categories, params):
     return [result_row(row) for row in result.values()]
 
 
-def pie_chart_data(formula, transactions, categories, params):
+def pie_chart_data(
+    formula: Formula, transactions: list[Any], categories: Any, params: dict[str, Any]
+) -> list[tuple]:
     """Chart function for Pie charts, filter empty categories by default"""
 
     rows = summary_function(formula, transactions, categories, params)
@@ -82,7 +89,7 @@ def pie_chart_data(formula, transactions, categories, params):
     return [(val, cat) for val, cat in rows if val > 0]
 
 
-def budget_chart_formula(chart):
+def budget_chart_formula(chart: "Chart") -> Formula:
     return Formula(
         columns=["sum", "cat"],
         categories=[key for key, val in chart.properties["budgets"].items()],
@@ -110,11 +117,13 @@ class Chart(BaseModel):
     title: str = ""
     size: str = ""
     chart_type: str = Field(alias="type", serialization_alias="type")
-    formula: Formula | None = Formula()
+    formula: Optional[Formula] = Formula()
     columns: str = ""
     properties: dict[str, Any] = Field(default_factory=dict)
 
-    def chart_data(self, transactions, account, params):
+    def chart_data(
+        self, transactions: list[Any], account: Any, params: dict[str, Any]
+    ) -> dict[str, Any]:
         """ "
         Processes a stream of transaction and gives output chart
         data to be plotted

@@ -1,4 +1,6 @@
-from datetime import datetime
+from collections.abc import Iterator
+from datetime import date, datetime
+from typing import Union
 
 import gnucash
 from gnucash import (
@@ -10,8 +12,10 @@ from gnucash import (
     Split,
 )
 
-from financespy.categories import Categories, Category
+from financespy.backend import Backend
 from financespy.backends.memory_backend import month_iterator_from_query
+from financespy.categories import Categories, Category
+from financespy.time_factory import parse_month
 from financespy.transaction import Transaction
 
 # These constants come from enums from C implementation
@@ -67,8 +71,6 @@ def categories_from(session, account):
 def split_to_transaction(split, categories):
     transaction = split.GetParent()
     split = split.GetOtherSplit()
-    # TODO - create Money implementation based on gnucash's
-    # GncNumeric or Python's Fraction
     value = split.GetValue().to_double()
     category = categories.category(split.GetAccount().name)
     description = transaction.GetDescription()
@@ -89,7 +91,6 @@ def _insert_transaction(session, record, currency, rec_date, account_to, account
     transaction.BeginEdit()
 
     split_to = Split(book)
-    # TODO - create money representation based on fractions
     value = GncNumeric(record.value.cents(), 100)
     split_to.SetValue(value)
     split_to.SetAccount(account_to)
@@ -107,7 +108,7 @@ def _insert_transaction(session, record, currency, rec_date, account_to, account
     transaction.CommitEdit()
 
 
-class GnucashBackend:
+class GnucashBackend(Backend):
     """Implements a financespy backend class that uses a gnucash file as storage
 
     A GnucashBackend object is bounded to a Gnucash session and a specific
@@ -119,37 +120,52 @@ class GnucashBackend:
     FinancesPy categories.
     """
 
-    def __init__(self, session, account):
+    def __init__(self, session, account, categories: Categories, currency: str = "USD"):
+        super().__init__(categories)
         self._session = session
         self._root_account = self._session.book.get_root_account()
         self._account = account
+        self.currency = currency
 
-    def insert_record(self, date, record):
-        expense_account = record.main_category()._account
+    def insert_record(self, date: date, transaction: Transaction) -> str | None:
+        expense_account = transaction.main_category()._account
         account_from = self._account
         session = self._session
 
         _insert_transaction(
             session=session,
-            record=record,
+            record=transaction,
             currency=self.currency,
             rec_date=date,
             account_to=expense_account,
             account_from=account_from,
         )
+        return None
 
-    def day(self, day, month, year):
-        dt = datetime(day=day, month=month, year=year)
-
+    def records(self, date: date) -> Iterator[Transaction]:
+        """Get all records for a specific date."""
+        dt = datetime.combine(date, datetime.min.time())
         return self._query(date=dt)
 
-    def month(self, month, year):
+    def month(self, month: Union[str, int], year: int):
+        """Get month iterator for the specified month.
+
+        Args:
+            month: Month number (1-12) or month name string (e.g., 'sep', 'september')
+            year: Year
+
+        Returns:
+            Month iterator object
+        """
+        month_num = parse_month(month)
+        self._validate_month_year(month_num, year)
+
         def query(firstday, lastday):
             return self._query(date_from=firstday, date_to=lastday)
 
-        return month_iterator_from_query(month, year, self, query)
+        return month_iterator_from_query(month_num, year, self, query)
 
-    def _query(self, date=None, date_from=None, date_to=None, filters=[]):
+    def _query(self, date=None, date_from=None, date_to=None):
         book = self._session.book
         query = gnucash.Query()
         query.search_for("Split")
@@ -187,4 +203,5 @@ class GnucashBackend:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self._session.exit()
+        if self._session:
+            self._session.end()

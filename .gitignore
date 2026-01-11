@@ -12,3 +12,12 @@ myenv/
 venv/
 .idea/
 .vscode/
+
+# SonarQube and analysis reports
+coverage.xml
+test-results.xml
+flake8-report.txt
+pylint-report.txt
+bandit-report.json
+.scannerwork/
+.sonar/

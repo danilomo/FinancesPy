@@ -2,29 +2,31 @@
 Main submodule of financespy.dashboard module. Contains the Dashboard type
 and functions to load structured data (from json/yaml) to a Dashboard object
 """
-from typing import List
+
+from typing import Any, Optional
+
 import yaml
 from pydantic import BaseModel, Field
+
 from .charts import Chart
-from .formula import Formula
 
 
-def open_file(file_name):
+def open_file(file_name: str) -> "Dashboard":
     """
     Loads a dashboard from a YAML file
     """
 
-    with open(file_name, "r", encoding="utf8") as yaml_file:
+    with open(file_name, encoding="utf8") as yaml_file:
         return Dashboard(**yaml.safe_load(yaml_file))
 
 
-def load_dashboard(value):
+def load_dashboard(value: str) -> "Dashboard":
     "Auxiliary function to load a dashboard file"
     values = yaml.safe_load(value)
     return Dashboard(**values)
 
 
-def get_list(dict_, key, default_val=()):
+def get_list(dict_: dict[str, Any], key: str, default_val: tuple = ()) -> list[str]:
     """Converts a string field from a dictionary into a list"""
 
     result = [elem.strip() for elem in dict_.get(key, "").split(",") if elem.strip()]
@@ -41,7 +43,7 @@ class Row(BaseModel):
     be displayed in the same row
     """
 
-    charts: List[Chart]
+    charts: list[Chart]
 
 
 class Parameter(BaseModel):
@@ -65,7 +67,7 @@ class Dashboard(BaseModel):
     account: str = ""
 
     @property
-    def charts(self):
+    def charts(self) -> dict[str, Chart]:
         """
         Returns a map of chart-id -> chart
         """
@@ -76,10 +78,17 @@ class Dashboard(BaseModel):
 
         return charts
 
-    def chart_data(self, transactions, account, params={}):
+    def chart_data(
+        self,
+        transactions: list[Any],
+        account: Any,
+        params: Optional[dict[str, Any]] = None,
+    ) -> list[dict[str, Any]]:
         """
         Returns the numerical data needed to plot every chart of the dashboard
         """
+        if params is None:
+            params = {}
         transactions = list(transactions)
 
         return [

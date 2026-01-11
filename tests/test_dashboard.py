@@ -1,8 +1,9 @@
 from datetime import date
+
+import pytest
+
 from financespy.dashboards import load_dashboard
 from financespy.money import ZERO, Money
-from financespy.transaction import Transaction
-import pytest
 
 
 def test_summary(random_account):
@@ -13,7 +14,7 @@ def test_summary(random_account):
               id: overview1
               formula:
                 columns: ['sum', 'cat']
-                categories: ['main_categories'] 
+                categories: ['main_categories']
               title: Overview 1
     """
     dashboard = load_dashboard(template)
@@ -40,7 +41,7 @@ def test_summary(random_account):
     for total, cat_name in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert set((k, v) for k, v in totals.items()) == set(totals_from_chart.items())
+    assert set(totals.items()) == set(totals_from_chart.items())
 
 
 def test_pie(random_account):
@@ -77,7 +78,7 @@ template:
     for total, cat_name in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert set((k, v) for k, v in totals.items() if v > ZERO) == set(
+    assert {(k, v) for k, v in totals.items() if v > ZERO} == set(
         totals_from_chart.items()
     )
 
@@ -119,7 +120,7 @@ template:
     for cat_name, total in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert set((k, v) for k, v in totals.items()) == set(totals_from_chart.items())
+    assert set(totals.items()) == set(totals_from_chart.items())
 
 
 def test_tree(random_account):
@@ -191,6 +192,6 @@ template:
     for total, cat_name in data[0]["data"]:
         totals_from_chart[cat_name] = Money(cents=total)
 
-    assert set((k, v) for k, v in totals.items() if v > ZERO) == set(
+    assert {(k, v) for k, v in totals.items() if v > ZERO} == set(
         totals_from_chart.items()
     )

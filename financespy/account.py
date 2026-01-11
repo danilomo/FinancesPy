@@ -2,24 +2,28 @@ import datetime
 import json
 import os
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+from typing import Any, Optional
 
-from financespy.categories import Categories, categories_from_list
+from financespy.backend import Backend
 from financespy.backends.filesystem_backend import FilesystemBackend
 from financespy.backends.memory_backend import MemoryBackend
 from financespy.backends.xlsx_backend import XLSXBackend
+from financespy.categories import Categories, categories_from_list
+from financespy.transaction import Transaction
 
 _current_year = datetime.datetime.now().year
 
 
 class OpenAccountError(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         self.message = message
 
 
-def open_account(account_path=None):
+def open_account(account_path: str) -> Optional["Account"]:
     """
     Creates an Account object from a given operating system path.
     The path can point to any supported storage: csv files, Excel spreadsheets,
@@ -31,9 +35,7 @@ def open_account(account_path=None):
     """
 
     if account_path is None:
-        # return open_default_account()
-        # TODO implement default account
-        pass
+        raise ValueError("account_path cannot be None")
 
     if os.path.isdir(account_path):
         return open_folder(account_path)
@@ -53,7 +55,7 @@ def open_account(account_path=None):
     raise OpenAccountError(f"File [{account_path}] is not a valid Gnucash file")
 
 
-def memory_account(categories):
+def memory_account(categories: Any) -> "Account":
     meta = AccountMetadata(
         categories=categories,
         currency="eur",
@@ -65,7 +67,7 @@ def memory_account(categories):
     return Account(backend=MemoryBackend(categories), account_metadata=meta)
 
 
-def open_folder(account_path):
+def open_folder(account_path: str) -> "Account":
     account_json = Path(account_path) / "account.json"
 
     if not account_json.exists():
@@ -77,25 +79,25 @@ def open_folder(account_path):
 
     if not account_metadata.backend_type:
         raise OpenAccountError(
-            f"Account backend type not specified in account.json file"
+            "Account backend type not specified in account.json file"
         )
 
-    backend = None
+    backend: Optional[Backend] = None
 
     if account_metadata.backend_type == "xlsx":
-        backend = XLSXBackend(account_path)
+        backend = XLSXBackend(account_path, account_metadata.categories)
     elif account_metadata.backend_type == "csv":
-        backend = FilesystemBackend(account_path)
+        backend = FilesystemBackend(account_path, account_metadata.categories)
 
     if backend is None:
         raise OpenAccountError(
-            f"Account backend type [{account_metadata.type} not supported]"
+            f"Account backend type [{account_metadata.backend_type}] not supported"
         )
 
     return Account(backend, account_metadata)
 
 
-def read_metadata(account_json):
+def read_metadata(account_json: Path) -> "AccountMetadata":
     with open(account_json) as f:
         source_dict = json.load(f)
         name = source_dict.get("name", "")
@@ -113,15 +115,15 @@ def read_metadata(account_json):
         )
 
 
-def open_gnucash(gnucash_file):
-    from gnucash import Session
+def open_gnucash(gnucash_file: str) -> "Account":
+    from gnucash import Session  # type: ignore[import-untyped]
 
     from financespy.backends import gnucash_backend
     from financespy.backends.gnucash_backend import GnucashBackend
 
     path = Path(gnucash_file)
     metadata_file = re.sub("[.]gnucash$", ".json", path.name)
-    metadata = read_metadata(str(path.parent / metadata_file))
+    metadata = read_metadata(path.parent / metadata_file)
 
     session = Session(gnucash_file)
 
@@ -129,12 +131,17 @@ def open_gnucash(gnucash_file):
         session, metadata.properties["account_backend"]
     )
 
-    if not metadata.categories:
+    if not metadata.categories._categories:
         metadata.categories = gnucash_backend.categories_from(
             session, metadata.properties["account_categories"]
         )
 
-    backend = GnucashBackend(session=session, account=gnucash_account)
+    backend = GnucashBackend(
+        session=session,
+        account=gnucash_account,
+        categories=metadata.categories,
+        currency=metadata.currency,
+    )
 
     return Account(backend, metadata)
 
@@ -149,7 +156,7 @@ class AccountMetadata:
     backend_type: str
     currency: str
     categories: Categories
-    properties: dict
+    properties: dict[str, Any]
 
 
 class Account:
@@ -167,27 +174,23 @@ class Account:
     with the correcty backend and metadata already configured.
     """
 
-    def __init__(self, backend, account_metadata):
-        backend.categories = account_metadata.categories
-        backend.currency = account_metadata.currency
-
+    def __init__(self, backend: Backend, account_metadata: AccountMetadata) -> None:
         self.backend = backend
         self.metadata = account_metadata
         self.categories = account_metadata.categories
 
-    def transactions(self, date_from, date_to):
-        # TODO - if date_from > date_to - throw error
+    def transactions(self, date_from: date, date_to: date) -> Iterator[Transaction]:
         #
         # if a backend-specific implementation exists, we use it.
         # It can be more efficient than our default implementation
         try:
-            return self.backend.transactions(date_from, date_to)
+            return self.backend.transactions(date_from, date_to)  # type: ignore[attr-defined,no-any-return]
         except AttributeError:
             pass
 
         return transactions_per_range(self.backend, date_from, date_to)
 
-    def day(self, day, month, year=_current_year):
+    def day(self, day: int, month: int, year: int = _current_year) -> Any:
         """
         Give all transactions for a specific day. If the year parameter, is not supplied
         it will use current year (as given by the operating system).
@@ -195,7 +198,7 @@ class Account:
 
         return self.backend.day(day, month, year)
 
-    def month(self, month, year=_current_year):
+    def month(self, month: int, year: int = _current_year) -> Any:
         """
         Give all transactions for a specific month. If the year parameter, is not supplied
         it will use current year (as given by the operating system).
@@ -203,7 +206,7 @@ class Account:
 
         return self.backend.month(month, year)
 
-    def records(self, date_):
+    def records(self, date_: date) -> Iterator[Transaction]:
         """
         Give all transactions for a specific date object. This can be any object that has the following attributes:
         year, day and month. Usually it should be a datetime.date object, but a duck-typed object also can be used.
@@ -211,7 +214,7 @@ class Account:
 
         return self.backend.records(date_)
 
-    def insert_record(self, date_, transaction):
+    def insert_record(self, date_: date, transaction: Transaction) -> Optional[str]:
         """
         Insert a financial transaction at a specific date. Only the day/month/year values are important, the specific hour/minute
         are not considered.
@@ -219,11 +222,21 @@ class Account:
 
         return self.backend.insert_record(date_, transaction)
 
-    def copy_year(self, account, year, tags=[], filters=[]):
+    def copy_year(
+        self,
+        account: "Account",
+        year: int,
+        tags: Optional[list[str]] = None,
+        filters: Optional[list[Any]] = None,
+    ) -> None:
         """Copies all transactions for an entire year from a source account
         to the current account. The tags parameter can be used to apply a special tag
         that can identify the transactions added by this methods. The filters parameter
         can exclude all transactions that matches at least one filter from the list"""
+        if tags is None:
+            tags = []
+        if filters is None:
+            filters = []
 
         for month in range(1, 13):
             transactions = filtered_records(
@@ -232,19 +245,22 @@ class Account:
 
             for trans in transactions:
                 for t in tags:
-                    cat = self.backend.category_from(t)
+                    cat = self.categories.category(t)
                     trans.add_category(cat)
 
-                self.insert_record(trans.date, trans)
+                if trans.date is not None:
+                    self.insert_record(trans.date, trans)
 
-    def update_record(self, transaction):
-        self.backend.edit_record(transaction)
+    def update_record(self, transaction: Transaction) -> None:
+        self.backend.edit_record(transaction)  # type: ignore[attr-defined]
 
-    def delete_record(self, id):
-        self.backend.delete_record(id)
+    def delete_record(self, id: Any) -> None:
+        self.backend.delete_record(id)  # type: ignore[attr-defined]
 
 
-def filtered_records(records_it, filters):
+def filtered_records(
+    records_it: Iterator[Transaction], filters: list[Any]
+) -> Iterator[Transaction]:
     """Gives a filtered records iterator that contains only records
     that doesn't match *any* filter from the filter list"""
 
@@ -262,15 +278,15 @@ def filtered_records(records_it, filters):
         yield trans
 
 
-def transactions_per_range(backend, date_from, date_to):
+def transactions_per_range(
+    backend: Backend, date_from: date, date_to: date
+) -> Iterator[Transaction]:
     year_from = date_from.year
     year_to = date_to.year
 
-    def iterator():
+    def iterator() -> Iterator[Transaction]:
         for year in range(year_from, year_to + 1):
             for month in range(1, 13):
-                dt = date(year=year, month=month, day=1)
-
                 for transaction in backend.month(year=year, month=month).records():
                     dt = transaction.date
 

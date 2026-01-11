@@ -1,8 +1,9 @@
-from financespy.money import Money
+import pytest
+
 from financespy.account import MemoryBackend
 from financespy.dashboards import Formula
+from financespy.money import Money
 from tests.test_utils import records
-import pytest
 
 _RECORDS = """2019-09-04;20.0, withdrawal
 2019-09-05;20.58, rewe

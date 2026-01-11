@@ -1,10 +1,26 @@
+from __future__ import annotations
+
+
 class Currency:
-    def __init__(self, acronym, name):
+    """Represents a currency with an acronym and name.
+
+    Args:
+        acronym: The currency acronym (e.g., 'USD', 'EUR')
+        name: The full currency name (e.g., 'US Dollar')
+    """
+
+    def __init__(self, acronym: str, name: str) -> None:
         self.acronym = acronym
         self.name = name
 
+    def __str__(self) -> str:
+        return f"{self.acronym} ({self.name})"
 
-def _currency_list_to_dict(currencies):
+    def __repr__(self) -> str:
+        return f"Currency('{self.acronym}', '{self.name}')"
+
+
+def _currency_list_to_dict(currencies: list[Currency]) -> dict[str, Currency]:
     return {currency.acronym: currency for currency in currencies}
 
 
@@ -173,31 +189,82 @@ _default_currencies = _currency_list_to_dict(
 
 
 class Currencies:
-    def __init__(self, currencies=_default_currencies):
-        if type(currencies) is list:
+    """Manager class for currency collections.
+
+    Provides access to currencies by acronym through both method calls
+    and attribute access.
+    """
+
+    def __init__(
+        self, currencies: list[Currency] | dict[str, Currency] | None = None
+    ) -> None:
+        if currencies is None:
+            currencies = _default_currencies
+
+        if isinstance(currencies, list):
             self._currencies = _currency_list_to_dict(currencies)
         else:
             self._currencies = currencies
 
-    def currency(self, name):
+    def currency(self, name: str) -> Currency:
+        """Get currency by acronym.
+
+        Args:
+            name: Currency acronym
+
+        Returns:
+            Currency object
+
+        Raises:
+            KeyError: If currency not found
+        """
+        if name not in self._currencies:
+            raise KeyError(f"Currency '{name}' not found")
         return self._currencies[name]
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Currency:
         if name in self._currencies:
             return self._currencies[name]
+        raise AttributeError(f"Currencies object has no attribute '{name}'")
 
-        raise AttributeError("Transaction object has no atrribute '%s'" % name)
+    def __contains__(self, name: str) -> bool:
+        return name in self._currencies
 
 
 class Money:
-    def __init__(self, value=None, cents=None, currency=_default_currencies["USD"]):
-        self.currency = currency
+    """Represents a monetary amount with currency.
 
+    Supports arithmetic operations and currency conversion.
+    Internally stores amounts as cents to avoid floating-point precision issues.
+
+    Args:
+        value: The monetary value as int, float, str, or Money
+        cents: Alternative way to specify value in cents
+        currency: The currency for this amount
+
+    Raises:
+        ValueError: If neither value nor cents is provided
+    """
+
+    def __init__(
+        self,
+        value: int | float | str | Money | None = None,
+        cents: int | float | None = None,
+        currency: Currency | None = None,
+    ) -> None:
         if value is None and cents is None:
-            raise AttributeError("Invalid arguments.")
+            raise ValueError("Either value or cents must be provided")
+
+        # Handle currency assignment, with special case for Money values
+        if isinstance(value, Money) and currency is None:
+            self.currency: Currency = value.currency
+        else:
+            self.currency = (
+                currency if currency is not None else _default_currencies["USD"]
+            )
 
         if cents is not None:
-            self._cents = cents
+            self._cents = int(cents)
             return
 
         if isinstance(value, str):
@@ -209,80 +276,88 @@ class Money:
         elif isinstance(value, Money):
             self._cents = value._cents
 
-    def is_zero(self):
+    def is_zero(self) -> bool:
+        """Check if the amount is zero."""
         return self._cents == 0
 
-    def _set_float(self, val):
-        self._cents = round(val * 100, 2)
+    def _set_float(self, val: float) -> None:
+        self._cents = int(round(val * 100, 2))
 
-    def __str__(self):
+    def __str__(self) -> str:
         val = round(self._cents / 100.0, 2)
-        return str(val)
+        return f"{val:.2f} {self.currency.acronym}"
 
-    def __float__(self):
+    def __float__(self) -> float:
         return round(self._cents / 100.0, 2)
 
-    def __int__(self):
+    def __int__(self) -> int:
         return int(self._cents)
 
-    def __repr__(self):
-        return self.__str__()
+    def __repr__(self) -> str:
+        return f"Money({float(self)}, currency={self.currency.acronym})"
 
-    def __add__(self, val):
-        other = val
+    def __add__(self, val: Money | int | float) -> Money:
         if not isinstance(val, Money):
-            other = Money(value=val, currency=self.currency)
-        return Money(cents=self._cents + other._cents)
+            val = Money(value=val, currency=self.currency)
+        return Money(cents=self._cents + val._cents, currency=self.currency)
 
-    def __radd__(self, val):
-        other = Money(val)
-        return other.__add__(self)
+    def __radd__(self, val: int | float) -> Money:
+        return Money(val).__add__(self)
 
-    def __sub__(self, val):
-        other = val
+    def __sub__(self, val: Money | int | float) -> Money:
         if not isinstance(val, Money):
-            other = Money(value=val, currency=self.currency)
-        return Money(cents=self._cents - other._cents)
+            val = Money(value=val, currency=self.currency)
+        return Money(cents=self._cents - val._cents, currency=self.currency)
 
-    def __rsub__(self, val):
-        other = Money(val)
-        return other.__sub__(self)
+    def __rsub__(self, val: int | float) -> Money:
+        return Money(val).__sub__(self)
 
-    def __mul__(self, val):
-        return Money(cents=self._cents * val)
+    def __mul__(self, val: int | float) -> Money:
+        return Money(cents=self._cents * val, currency=self.currency)
 
     __rmul__ = __mul__
 
-    def __truediv__(self, val):
-        return Money(cents=self._cents / val)
+    def __truediv__(self, val: int | float) -> Money:
+        return Money(cents=self._cents / val, currency=self.currency)
 
-    __rtruediv__ = __truediv__
+    def __rtruediv__(self, val: int | float) -> Money:
+        return Money(cents=val / (self._cents / 100.0), currency=self.currency)
 
-    def __eq__(self, obj):
+    def __eq__(self, obj: object) -> bool:
         return isinstance(obj, Money) and obj._cents == self._cents
 
-    def __ne__(self, obj):
+    def __ne__(self, obj: object) -> bool:
         return not self.__eq__(obj)
 
-    def __lt__(self, obj):
+    def __lt__(self, obj: object) -> bool:
+        if not isinstance(obj, Money):
+            return NotImplemented
         return self._cents < obj._cents
 
-    def __le__(self, obj):
+    def __le__(self, obj: object) -> bool:
+        if not isinstance(obj, Money):
+            return NotImplemented
         return self._cents <= obj._cents
 
-    def __ge__(self, obj):
+    def __ge__(self, obj: object) -> bool:
+        if not isinstance(obj, Money):
+            return NotImplemented
         return self._cents >= obj._cents
 
-    def __gt__(self, obj):
+    def __gt__(self, obj: object) -> bool:
+        if not isinstance(obj, Money):
+            return NotImplemented
         return self._cents > obj._cents
 
-    def __hash__(self):
-        return self._cents.__hash__()
+    def __hash__(self) -> int:
+        return hash((self._cents, self.currency.acronym))
 
-    def abs(self):
-        return Money(cents=abs(self._cents))
+    def abs(self) -> Money:
+        """Return absolute value of the money amount."""
+        return Money(cents=abs(self._cents), currency=self.currency)
 
-    def cents(self):
+    def cents(self) -> int:
+        """Return the amount in cents."""
         return int(self._cents)
 
 
