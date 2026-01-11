@@ -33,6 +33,13 @@ from financespy.exceptions import (
 )
 from financespy.money import Currencies, Currency, Money
 
+# Predicate compiler
+from financespy.predicate_compiler import (
+    PredicateCompilationError,
+    PredicateCompiler,
+    compile_predicate,
+)
+
 # Time utilities
 from financespy.time_factory import parse_month
 from financespy.transaction import Transaction
@@ -76,7 +83,11 @@ __all__ = [
     # Utilities
     "parse_month",
     "categories_from",
+    # Predicate compiler
+    "PredicateCompiler",
+    "compile_predicate",
     # Exceptions
+    "PredicateCompilationError",
     "FinancesPyError",
     "ParseTransactionError",
     "CategoryNotFoundError",

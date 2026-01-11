@@ -1,6 +1,7 @@
 """Excel XLSX backend implementation for FinancesPy."""
 
 import pathlib
+import shutil
 from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import date as datetime_date
@@ -263,6 +264,14 @@ class XLSXBackend(Backend):
         """
         return self.folder / f"{date.year}.xlsx"
 
+    def _get_template_path(self) -> pathlib.Path:
+        """Get the path to the XLSX template file.
+
+        Returns:
+            Path to the template file
+        """
+        return pathlib.Path(__file__).parent / "template.xlsx"
+
     def _get_workbook(self, date: datetime_date) -> Workbook:
         """Get or load the workbook for a given date.
 
@@ -282,7 +291,18 @@ class XLSXBackend(Backend):
                 if filename.exists():
                     workbook = load_workbook(filename=filename)
                 else:
-                    workbook = self._create_new_workbook()
+                    # Copy from template if it exists, otherwise create new
+                    template_path = self._get_template_path()
+                    if template_path.exists():
+                        shutil.copy(template_path, filename)
+                        workbook = load_workbook(filename=filename)
+                        self._logger.info(f"Created {filename} from template")
+                    else:
+                        workbook = self._create_new_workbook()
+                        self._logger.warning(
+                            f"Template not found at {template_path}, "
+                            "creating blank workbook"
+                        )
 
                 self._workbooks[date.year] = workbook
                 return workbook
