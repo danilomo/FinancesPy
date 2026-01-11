@@ -88,6 +88,16 @@ def open_folder(account_path: str) -> "Account":
         backend = XLSXBackend(account_path, account_metadata.categories)
     elif account_metadata.backend_type == "csv":
         backend = FilesystemBackend(account_path, account_metadata.categories)
+    elif account_metadata.backend_type == "combined":
+        from financespy.backends.combined_backend import CombinedBackend
+
+        # Read full config for combined backend
+        with open(account_json) as f:
+            config = json.load(f)
+
+        backend = CombinedBackend(
+            Path(account_path), account_metadata.categories, config
+        )
 
     if backend is None:
         raise OpenAccountError(
