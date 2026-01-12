@@ -112,17 +112,68 @@ def read_metadata(account_json: Path) -> "AccountMetadata":
         source_dict = json.load(f)
         name = source_dict.get("name", "")
         backend_type = source_dict.get("type", "")
-        categories = source_dict.get("categories", [])
+        categories_raw = source_dict.get("categories", [])
         currency = source_dict.get("currency", "")
         properties = source_dict.get("properties", {})
+
+        # Check if categories is a path reference to external file
+        if isinstance(categories_raw, str):
+            categories_list = _load_categories_from_file(account_json, categories_raw)
+        else:
+            categories_list = categories_raw
 
         return AccountMetadata(
             name=name,
             backend_type=backend_type,
-            categories=categories_from_list(categories),
+            categories=categories_from_list(categories_list),
             currency=currency,
             properties=properties,
         )
+
+
+def _load_categories_from_file(account_json: Path, categories_path: str) -> list[Any]:
+    """
+    Load categories from an external JSON file.
+
+    Args:
+        account_json: Path to the account.json file
+        categories_path: Path to categories file (relative or absolute)
+
+    Returns:
+        List of categories loaded from the JSON file
+
+    Raises:
+        OpenAccountError: If file not found or invalid JSON
+    """
+    # Resolve path relative to account.json's parent directory
+    categories_file = Path(categories_path)
+    if not categories_file.is_absolute():
+        # Relative path: resolve from account.json's directory
+        categories_file = (account_json.parent / categories_path).resolve()
+
+    # Load and parse the JSON file
+    try:
+        with open(categories_file) as f:
+            categories_data = json.load(f)
+
+            # Validate that the loaded data is a list
+            if not isinstance(categories_data, list):
+                raise OpenAccountError(
+                    f"Categories file {categories_file} must contain a JSON array"
+                )
+
+            return categories_data
+
+    except FileNotFoundError as e:
+        raise OpenAccountError(f"Categories file not found: {categories_file}") from e
+    except json.JSONDecodeError as e:
+        raise OpenAccountError(
+            f"Invalid JSON in categories file {categories_file}: {e}"
+        ) from e
+    except Exception as e:
+        raise OpenAccountError(
+            f"Error loading categories from {categories_file}: {e}"
+        ) from e
 
 
 def open_gnucash(gnucash_file: str) -> "Account":

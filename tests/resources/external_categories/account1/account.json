@@ -1,0 +1,7 @@
+{
+    "name": "test_external_categories",
+    "type": "xlsx",
+    "currency": "eur",
+    "categories": "../categories.json",
+    "properties": {}
+}

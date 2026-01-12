@@ -1,0 +1,34 @@
+[
+    "uncategorized",
+    "misc",
+    "random",
+    "withdrawal",
+    {
+        "food": [
+            {
+                "groceries": [
+                    "lidl",
+                    "aldi",
+                    "edeka",
+                    "rewe"
+                ]
+            },
+            "restaurant",
+            "street_food"
+        ]
+    },
+    {
+        "transport": [
+            "bus",
+            "train",
+            "taxi"
+        ]
+    },
+    {
+        "bills": [
+            "electricity",
+            "water",
+            "internet"
+        ]
+    }
+]
