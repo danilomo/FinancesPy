@@ -98,6 +98,10 @@ def open_folder(account_path: str) -> "Account":
         backend = CombinedBackend(
             Path(account_path), account_metadata.categories, config
         )
+    elif account_metadata.backend_type == "csv_folder":
+        from financespy.backends.csv_folder_backend import CsvFolderBackend
+
+        backend = CsvFolderBackend(account_path, account_metadata.categories)
 
     if backend is None:
         raise OpenAccountError(

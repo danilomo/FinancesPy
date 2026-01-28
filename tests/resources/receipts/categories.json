@@ -1,0 +1,20 @@
+[
+    {
+        "expenses": [
+            {"others": ["uncategorized"]},
+            {
+                "food": [
+                    {
+                        "groceries": [
+                            "lidl",
+                            "aldi",
+                            "edeka",
+                            "rewe"
+                        ]
+                    },
+                    "bakery"
+                ]
+            }
+        ]
+    }
+]

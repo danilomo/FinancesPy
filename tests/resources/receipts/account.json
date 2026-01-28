@@ -1,0 +1,6 @@
+{
+    "name": "csv_folder_test",
+    "type": "csv_folder",
+    "currency": "eur",
+    "categories": "categories.json"
+}
