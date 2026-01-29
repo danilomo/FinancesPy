@@ -17,9 +17,11 @@ from sqlalchemy import (
     create_engine,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.types import JSON, TypeDecorator
 
 import financespy.transaction
 from financespy.account import AccountMetadata
@@ -32,6 +34,7 @@ from financespy.exceptions import (
     DataValidationError,
 )
 from financespy.money import Money
+from financespy.sql_predicate_compiler import SQLPredicateCompiler, SQLDialect
 from financespy.time_factory import parse_month
 
 
@@ -40,6 +43,33 @@ class BaseType(DeclarativeMeta):
 
 
 Base: type[Any] = declarative_base(metaclass=BaseType)
+
+
+class JSONType(TypeDecorator):
+    """Cross-database JSON type that uses JSONB on PostgreSQL, JSON elsewhere."""
+
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(JSONB())
+        elif dialect.name in ("mysql", "mariadb", "sqlite"):
+            return dialect.type_descriptor(JSON())
+        else:
+            return dialect.type_descriptor(Text())
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            if dialect.name not in ("postgresql", "mysql", "mariadb", "sqlite"):
+                return json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            if isinstance(value, str):
+                return json.loads(value)
+        return value
 
 
 class Account(Base):
@@ -63,7 +93,8 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     value = Column(BigInteger, nullable=False)  # Stored in cents
     description = Column(Text, nullable=True)
-    categories = Column(Text, nullable=True)
+    categories = Column(Text, nullable=True)  # Original categories (comma-separated)
+    category_membership = Column(JSONType, nullable=True)  # {"cat": true} for querying
     account_id = Column(Integer, nullable=False)
     date = Column(Date, nullable=False)
 
@@ -188,10 +219,16 @@ class SQLBackend(Backend):
             )
 
         try:
-            # Prepare categories string
+            # Prepare categories string (original format for backward compat)
             categories_str = ""
+            category_membership: dict[str, bool] = {}
+
             if transaction.categories:
                 categories_str = ",".join(str(cat) for cat in transaction.categories)
+                # Build category membership map with all ancestors
+                for cat in transaction.categories:
+                    for ancestor_name in cat.ancestor_names(include_self=True):
+                        category_membership[ancestor_name] = True
 
             # Create instance using the model class constructor
             db_transaction = Transaction(
@@ -202,6 +239,7 @@ class SQLBackend(Backend):
                 ),
                 description=transaction.description or "",
                 categories=categories_str,
+                category_membership=category_membership if category_membership else None,
                 account_id=self.account_id,
                 date=date,
             )
@@ -353,6 +391,15 @@ class SQLBackend(Backend):
                     setattr(db_transaction, field, value.cents())
                 elif field == "categories" and isinstance(value, list):
                     setattr(db_transaction, field, ",".join(str(cat) for cat in value))
+                    # Also update category_membership
+                    category_membership: dict[str, bool] = {}
+                    for cat in value:
+                        if hasattr(cat, "ancestor_names"):
+                            for ancestor_name in cat.ancestor_names(include_self=True):
+                                category_membership[ancestor_name] = True
+                        else:
+                            category_membership[str(cat)] = True
+                    setattr(db_transaction, "category_membership", category_membership)
                 else:
                     setattr(db_transaction, field, value)
 
@@ -500,6 +547,91 @@ class SQLBackend(Backend):
 
         except SQLAlchemyError as e:
             raise BackendError(f"Failed to retrieve all transactions: {e}") from e
+
+    def query_with_predicate(
+        self,
+        predicate_expression: str,
+        start_date: Optional[datetime_date] = None,
+        end_date: Optional[datetime_date] = None,
+        dialect: Optional[SQLDialect] = None,
+    ) -> Iterator["financespy.transaction.Transaction"]:
+        """Query transactions using a predicate expression with database-level filtering.
+
+        This method compiles the predicate expression to SQL and executes it directly
+        in the database, enabling efficient filtering without loading all records into
+        memory.
+
+        Args:
+            predicate_expression: Predicate expression string (e.g., "is_groceries AND (NOT is_kaufland)")
+            start_date: Optional start date filter (inclusive)
+            end_date: Optional end date filter (inclusive)
+            dialect: SQL dialect override. If None, auto-detects from session.
+
+        Returns:
+            Iterator of matching transactions
+
+        Raises:
+            BackendError: If database operation fails or predicate is invalid
+
+        Examples:
+            >>> for tx in backend.query_with_predicate("is_groceries"):
+            ...     print(tx)
+
+            >>> from datetime import date
+            >>> txs = list(backend.query_with_predicate(
+            ...     "is_restaurant AND (value > 2000)",
+            ...     start_date=date(2024, 1, 1),
+            ...     end_date=date(2024, 12, 31)
+            ... ))
+        """
+        try:
+            # Auto-detect dialect if not provided
+            if dialect is None:
+                dialect = self._detect_dialect()
+
+            # Compile predicate to SQL
+            compiler = SQLPredicateCompiler(dialect=dialect)
+            where_clause = compiler.compile(predicate_expression)
+
+            # Build base query with date filters
+            query = self._base_query()
+
+            if start_date:
+                query = query.filter(Transaction.date >= start_date)
+            if end_date:
+                query = query.filter(Transaction.date <= end_date)
+
+            # Add predicate filter using raw SQL
+            query = query.filter(text(where_clause))
+
+            self._logger.debug(
+                f"Executing predicate query: {predicate_expression} -> {where_clause}"
+            )
+
+            for db_transaction in query:
+                yield self._convert_db_transaction(db_transaction)
+
+        except SQLAlchemyError as e:
+            self._logger.error(f"Failed to execute predicate query: {e}")
+            raise BackendError(f"Database predicate query failed: {e}") from e
+        except Exception as e:
+            self._logger.error(f"Error in predicate query: {e}")
+            raise BackendError(f"Predicate query failed: {e}") from e
+
+    def _detect_dialect(self) -> SQLDialect:
+        """Detect SQL dialect from the session's engine.
+
+        Returns:
+            SQL dialect string
+        """
+        try:
+            dialect_name = self.session.bind.dialect.name
+            if dialect_name in ("postgresql", "sqlite", "mysql"):
+                return dialect_name  # type: ignore
+            # Default to postgresql for compatible JSONB syntax
+            return "postgresql"
+        except Exception:
+            return "postgresql"
 
     def close(self) -> None:
         """Close database session and cleanup resources."""

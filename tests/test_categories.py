@@ -141,3 +141,48 @@ def test_transaction_matching():
     assert t3.is_tax
     assert not t3.is_food
     assert not t3.is_groceries
+
+
+def test_category_ancestors():
+    """Test the ancestors() method on Category."""
+    cats = get_categories()
+    lidl = cats.category("lidl")
+
+    # lidl -> groceries -> food -> expenses
+    ancestors = lidl.ancestors(include_self=True)
+    ancestor_names = [cat.name for cat in ancestors]
+
+    assert ancestor_names == ["lidl", "groceries", "food", "expenses"]
+
+
+def test_category_ancestors_without_self():
+    """Test ancestors() excluding self."""
+    cats = get_categories()
+    lidl = cats.category("lidl")
+
+    ancestors = lidl.ancestors(include_self=False)
+    ancestor_names = [cat.name for cat in ancestors]
+
+    assert ancestor_names == ["groceries", "food", "expenses"]
+
+
+def test_category_ancestor_names():
+    """Test the ancestor_names() convenience method."""
+    cats = get_categories()
+    aldi = cats.category("aldi")
+
+    names = aldi.ancestor_names(include_self=True)
+    assert names == ["aldi", "groceries", "food", "expenses"]
+
+
+def test_root_category_ancestors():
+    """Test ancestors on a root category (no parent)."""
+    cats = get_categories()
+    expenses = cats.category("expenses")
+
+    ancestors = expenses.ancestors(include_self=True)
+    assert len(ancestors) == 1
+    assert ancestors[0].name == "expenses"
+
+    ancestors_without_self = expenses.ancestors(include_self=False)
+    assert len(ancestors_without_self) == 0

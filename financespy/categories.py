@@ -23,6 +23,35 @@ class Category:
 
         return self.parent.matches(cat)
 
+    def ancestors(self, include_self: bool = True) -> list[Category]:
+        """Get all ancestor categories in the hierarchy.
+
+        Args:
+            include_self: If True, includes this category in the result.
+
+        Returns:
+            List of categories from this category up to the root.
+        """
+        result: list[Category] = []
+        if include_self:
+            result.append(self)
+        current = self.parent
+        while current is not None:
+            result.append(current)
+            current = current.parent
+        return result
+
+    def ancestor_names(self, include_self: bool = True) -> list[str]:
+        """Get names of all ancestor categories.
+
+        Args:
+            include_self: If True, includes this category's name.
+
+        Returns:
+            List of category names from this category up to the root.
+        """
+        return [cat.name for cat in self.ancestors(include_self)]
+
     __repr__ = __str__
 
 
